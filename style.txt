@@ -1,0 +1,28 @@
+# PROOF FILES SHOULD SATISFY THE FOLLOWING BASIC FORMATS
+
+#   §1: The long name of an operation is <TYPE>_<NAME> or <TYPE1>_TO_<TYPE2>_<NAME> where <TYPE1>, <TYPE2>, and <TYPE> are generator types and <NAME> is some additional name string
+# 	  EXAMPLE: DPDA_REMOVE_EMPTY_LINES or DPDA_TO_CFG_OPT
+#   §2: The short name of an operation <TYPE>_<NAME> is <TYPE>_<SHORTNAME> where <SHORTNAME> is the abbreviation of <NAME>
+# 	  EXAMPLE: DPDA_REL
+#   §3: The project directory of the operation is called: <PREFIX>__<LONG-NAME>
+#   §4: The theory file of the operation <TYPE>_<NAME> is called: FUNCTION__<SHORT-NAME>__<LONG-NAME>.thy; The theory file of the operation <TYPE1>_TO_<TYPE2>_<NAME> is called: FUNCTION__<TYPE1>_TO_<TYPE2>_<NAME>.thy;
+#         EXAMPLE: FUNCTION__DPDA_REL__DPDA_REMOVE_EMPTY_LINES.thy and FUNCTION__DPDA_TO_CFG_OPT.thy
+#   §5: Operations are named as F_<SHORT-NAME-WITHOUT-"_">, "_" is used where required
+# 	  EXAMPLE: F_DPDAREL
+#   §6: A helper operations <HELPER> of an operation is named as F_<SHORT-NAME>__<HELPER>, helper should be small caps
+# 	  EXAMPLE: F_DPDAREL__edges;
+# 	  possible helpers are:
+# 		* recursive
+#   §7: Specification definitions are called: F_<SHORT-NAME>__SpecInput and F_<SHORT-NAME>__SpecOutput
+#   §8: Specification satisfaction is given by theorem named: F_<SHORT-NAME>__SOUND
+#   §9: type variables are 'state, 'stack, 'event, 'nonterminal, 'marker possibly with suffixes from [A-Z]
+#   §10: every lemma can not be moved to a previous theory file (as all lemmas involve the current opration or one of its helper operations): exceptions are marked with "(*NO MOVE : <reason>*)"
+#   §11: all lemmas should be properly layouted
+#   §12: all definitions should be properly layouted
+#   §13: all definitions should be properly layouted
+#   §14: no unreasonable comments
+#   §15: no long locale definitions with instantiation parameters
+#   §16: rename relations for translational results consistently: F_<short-op-name>_relation_<object>__(LR/RL/LR2)
+#   §17: remove parameters of locale interpretations
+
+

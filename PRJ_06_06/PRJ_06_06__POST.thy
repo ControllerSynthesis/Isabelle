@@ -1,0 +1,59 @@
+section {*PRJ\_06\_06\_\_POST*}
+theory
+  PRJ_06_06__POST
+
+imports
+  L_ATS_Bisimulation_Configuration_Weak
+  L_ATS_Bisimulation_Derivation_Strong1
+  L_ATS_Bisimulation_Derivation_Strong2
+  L_ATS_Branching
+  L_ATS_Branching_Versus_Linear1
+  L_ATS_Branching_Versus_Linear2
+  L_ATS_Derivation_Map
+  L_ATS_Isomorphism
+  L_ATS_Linear
+  L_ATS_Simulation_Configuration_Weak
+  L_ATS_Simulation_Configuration_WeakBRA
+  L_ATS_Simulation_Configuration_WeakDET
+  L_ATS_Simulation_Configuration_WeakLRB
+  L_ATS_Simulation_Configuration_WeakLRReach
+  L_ATS_Simulation_Configuration_WeakLRRequired
+  L_ATS_Simulation_Configuration_WeakLR_FULL
+  L_ATS_Simulation_Configuration_WeakLR_Marked_Effect
+  L_ATS_Simulation_Configuration_WeakLR_Marking_Condition
+  L_ATS_Simulation_Configuration_WeakLR_Unmarked_Effect
+  L_ATS_Simulation_Configuration_Weak_Plain
+  PRJ_06_06__ENTRY
+  PRJ_06_06__PRE
+
+begin
+
+lemmas LOCALE_DEFS_02f =
+  ATS_Derivation_Map_def
+  ATS_Bisimulation_Configuration_Weak_def
+  ATS_Bisimulation_Derivation_Strong1_def
+  ATS_Bisimulation_Derivation_Strong2_def
+  ATS_Branching_Versus_Linear1_def
+  ATS_Branching_Versus_Linear2_def
+  ATS_Branching_def
+  ATS_Linear_def
+  ATS_Simulation_Configuration_Weak_def
+  ATS_Simulation_Configuration_WeakLRB_def
+  ATS_Simulation_Configuration_WeakReach_def
+  ATS_Simulation_Configuration_WeakRequired_def
+  ATS_Simulation_Configuration_Weak_Marked_Effect_def
+  ATS_Simulation_Configuration_Weak_Unmarked_Effect_def
+  ATS_Simulation_Configuration_WeakLR_Marking_Condition_def
+  ATS_Simulation_Configuration_WeakLR_FULL_def
+  ATS_Simulation_Configuration_Weak_Plain_def
+  ATS_Isomorphism_def
+
+lemmas LOCALE_DEFS_ALL =
+  LOCALE_DEFS_02a
+  LOCALE_DEFS_02b
+  LOCALE_DEFS_02c
+  LOCALE_DEFS_02d
+  LOCALE_DEFS_02e
+  LOCALE_DEFS_02f
+
+end

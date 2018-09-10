@@ -1,0 +1,58 @@
+section {*PRJ\_06\_05\_\_PRE*}
+theory
+  PRJ_06_05__PRE
+
+imports
+  PRJ_06_05__ENTRY
+
+begin
+
+end
+
+(*
+BB_SB = Nonblockingness_branching M
+BB_DB_R = Nonblockingness_branching_restricted_DB M
+BB_SB_R = Nonblockingness_branching_restricted M
+LB_SB = Nonblockingness_linear M
+LB_SB_R = Nonblockingness_linear_restricted M
+LB_DB = Nonblockingness_linear_DB M
+LB_DB_R = Nonblockingness_linear_restricted_DB M
+LangBF = nonblockingness_language (unmarked_language M) (marked_language M)
+
+FDetermDB = is_forward_deterministicHist_DB M
+FDetermSB = is_forward_deterministicHist_SB M
+FDetermR = is_forward_deterministic_accessible M
+
+Language_to_Operational
+L_BF_Bra_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_BB_SB
+L_BF_BraDBRest_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_BB_DB_R
+L_BF_BraSBRest_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_BB_SB_R
+L_BF_LinDB_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_LB_DB
+L_BF_LinSB_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_LB_SB
+L_BF_LinDBRest_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_LB_DB_R
+L_BF_LinSBRest_DetHDB_LaOp.thy	FDetermDB_and_LangBF_imply_LB_SB_R
+
+L_BF_Bra_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_BB_SB
+L_BF_BraDBRest_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_BB_DB_R
+L_BF_BraSBRest_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_BB_SB_R
+L_BF_LinSB_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_LB_SB
+L_BF_LinDB_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_LB_DB
+L_BF_LinDBRest_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_LB_DB_R
+L_BF_LinSBRest_DetHSB_LaOp.thy	FDetermSB_and_LangBF_imply_LB_SB_R
+
+L_BF_Bra_DetR_LaOp.thy FDetermR_and_LangBF_imply_BB_SB
+L_BF_LinSB_DetR_LaOp.thy	FDetermR_and_LangBF_imply_LB_SB
+L_BF_LinDB_DetR_LaOp.thy	FDetermR_and_LangBF_imply_LB_DB
+L_BF_LinSBRest_DetR_LaOp.thy	FDetermR_and_LangBF_imply_LB_SB_R
+L_BF_LinDBRest_DetR_LaOp.thy	FDetermR_and_LangBF_imply_LB_DB_R
+
+L_BF_Bra_LaOp.thy LangBF_implies_BB_SB
+L_BF_BraSBRest_LaOp.thy LangBF_implies_BB_SB_R
+L_BF_LinSB_LaOp.thy LangBF_implies_LB_SB
+L_BF_LinDB_LaOp.thy LangBF_implies_LB_DB
+
+Operational_to_Language
+L_BF_LinDB_OpLa.thy LB_DB_implies_LangBF
+L_BF_Bra_OpLa.thy BB_SB_implies_LangBF
+L_BF_LinSB_OpLa.thy LB_SB_implies_LangBF
+*)

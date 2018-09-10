@@ -1,0 +1,7372 @@
+section {*L\_ATS\_Branching\_Versus\_Linear2*}
+theory
+  L_ATS_Branching_Versus_Linear2
+
+imports
+  L_ATS_Branching_Versus_Linear1
+
+begin
+
+locale ATS_Branching_Versus_Linear2 =
+  ATS_Branching_Versus_Linear1
+  "TSstructure :: 'TSstructure \<Rightarrow> bool"
+  "lin_configurations :: 'TSstructure \<Rightarrow> 'lin_conf set"
+  "lin_initial_configurations :: 'TSstructure \<Rightarrow> 'lin_conf set"
+  "step_labels :: 'TSstructure \<Rightarrow> 'label set"
+  "lin_step_relation :: 'TSstructure \<Rightarrow> 'lin_conf \<Rightarrow> 'label \<Rightarrow> 'lin_conf \<Rightarrow> bool"
+  "effects :: 'TSstructure \<Rightarrow> 'event list set"
+  "lin_marking_condition :: 'TSstructure \<Rightarrow> ('label, 'lin_conf) derivation \<Rightarrow> bool"
+  "lin_marked_effect :: 'TSstructure \<Rightarrow> ('label, 'lin_conf) derivation \<Rightarrow> 'event list set"
+  "lin_unmarked_effect :: 'TSstructure \<Rightarrow> ('label, 'lin_conf) derivation \<Rightarrow> 'event list set"
+  "lin_fixed_schedulers :: 'TSstructure \<Rightarrow> 'lin_fixed_scheduler set"
+  "lin_empty_fixed_scheduler :: 'TSstructure \<Rightarrow> 'lin_fixed_scheduler"
+  "lin_fixed_scheduler_extendable :: 'TSstructure \<Rightarrow> 'lin_fixed_scheduler \<Rightarrow> bool"
+  "lin_scheduler_fragments :: 'TSstructure \<Rightarrow> 'lin_scheduler_fragment set"
+  "lin_empty_scheduler_fragment :: 'TSstructure \<Rightarrow> 'lin_scheduler_fragment"
+  "lin_join_scheduler_fragments :: 'lin_scheduler_fragment \<Rightarrow> 'lin_scheduler_fragment \<Rightarrow> 'lin_scheduler_fragment"
+  "lin_unfixed_schedulers :: 'TSstructure \<Rightarrow> 'lin_unfixed_scheduler set"
+  "lin_empty_unfixed_scheduler :: 'TSstructure \<Rightarrow> 'lin_unfixed_scheduler"
+  "lin_unfixed_scheduler_right_quotient :: 'lin_unfixed_scheduler \<Rightarrow> 'lin_unfixed_scheduler \<Rightarrow> 'lin_scheduler_fragment option"
+  "lin_extend_unfixed_scheduler :: 'lin_scheduler_fragment \<Rightarrow> 'lin_unfixed_scheduler \<Rightarrow> 'lin_unfixed_scheduler"
+  "lin_unfixed_scheduler_extendable :: 'TSstructure \<Rightarrow> 'lin_unfixed_scheduler \<Rightarrow> bool"
+  "lin_schedulers :: 'TSstructure \<Rightarrow> 'lin_scheduler set"
+  "lin_initial_schedulers :: 'TSstructure \<Rightarrow> 'lin_scheduler set"
+  "lin_empty_scheduler :: 'TSstructure \<Rightarrow> 'lin_scheduler"
+  "lin_get_scheduler :: 'lin_conf \<Rightarrow> 'lin_scheduler"
+  "lin_join_fixed_scheduler_unfixed_scheduler :: 'lin_fixed_scheduler \<Rightarrow> 'lin_unfixed_scheduler \<Rightarrow> 'lin_scheduler"
+  "lin_extend_scheduler :: 'lin_scheduler_fragment \<Rightarrow> 'lin_scheduler \<Rightarrow> 'lin_scheduler"
+  "lin_get_unfixed_scheduler :: 'lin_conf \<Rightarrow> 'lin_unfixed_scheduler"
+  "lin_set_unfixed_scheduler :: 'lin_conf \<Rightarrow> 'lin_unfixed_scheduler \<Rightarrow> 'lin_conf"
+  "lin_get_fixed_scheduler :: 'lin_conf \<Rightarrow> 'lin_fixed_scheduler"
+  "histories :: 'TSstructure \<Rightarrow> 'history set"
+  "history_fragments :: 'TSstructure \<Rightarrow> 'history_fragment set"
+  "empty_history :: 'TSstructure \<Rightarrow> 'history"
+  "empty_history_fragment :: 'TSstructure \<Rightarrow> 'history_fragment"
+  "lin_set_history :: 'lin_conf \<Rightarrow> 'history \<Rightarrow> 'lin_conf"
+  "extend_history :: 'history \<Rightarrow> 'history_fragment \<Rightarrow> 'history"
+  "join_history_fragments :: 'history_fragment \<Rightarrow> 'history_fragment \<Rightarrow> 'history_fragment"
+  "lin_get_history :: 'lin_conf \<Rightarrow> 'history"
+  "bra_configurations :: 'TSstructure \<Rightarrow> 'bra_conf set"
+  "bra_initial_configurations :: 'TSstructure \<Rightarrow> 'bra_conf set"
+  "bra_step_relation :: 'TSstructure \<Rightarrow> 'bra_conf \<Rightarrow> 'label \<Rightarrow> 'bra_conf \<Rightarrow> bool"
+  "bra_marking_condition :: 'TSstructure \<Rightarrow> ('label, 'bra_conf) derivation \<Rightarrow> bool"
+  "bra_marked_effect :: 'TSstructure \<Rightarrow> ('label, 'bra_conf) derivation \<Rightarrow> 'event list set"
+  "bra_unmarked_effect :: 'TSstructure \<Rightarrow> ('label, 'bra_conf) derivation \<Rightarrow> 'event list set"
+  "bra_fixed_schedulers :: 'TSstructure \<Rightarrow> 'bra_fixed_scheduler set"
+  "bra_empty_fixed_scheduler :: 'TSstructure \<Rightarrow> 'bra_fixed_scheduler"
+  "bra_fixed_scheduler_extendable :: 'TSstructure \<Rightarrow> 'bra_fixed_scheduler \<Rightarrow> bool"
+  "bra_get_fixed_scheduler :: 'bra_conf \<Rightarrow> 'bra_fixed_scheduler"
+  "bra_set_history :: 'bra_conf \<Rightarrow> 'history \<Rightarrow> 'bra_conf"
+  "bra_get_history :: 'bra_conf \<Rightarrow> 'history"
+  "Lin2BraConf :: 'lin_conf \<Rightarrow> 'bra_conf"
+  "Bra2LinConf :: 'bra_conf \<Rightarrow> 'lin_scheduler \<Rightarrow> 'lin_conf"
+  "Bra2LinStep :: 'bra_conf \<Rightarrow> 'label \<Rightarrow> 'bra_conf \<Rightarrow> 'lin_scheduler_fragment"
+  "Bra2LinFin :: 'TSstructure \<Rightarrow> 'bra_fixed_scheduler \<Rightarrow> 'lin_scheduler"
+  for
+    TSstructure lin_configurations lin_initial_configurations step_labels lin_step_relation effects lin_marking_condition lin_marked_effect lin_unmarked_effect lin_fixed_schedulers lin_empty_fixed_scheduler lin_fixed_scheduler_extendable lin_scheduler_fragments lin_empty_scheduler_fragment lin_join_scheduler_fragments lin_unfixed_schedulers lin_empty_unfixed_scheduler lin_unfixed_scheduler_right_quotient lin_extend_unfixed_scheduler lin_unfixed_scheduler_extendable lin_schedulers lin_initial_schedulers lin_empty_scheduler lin_get_scheduler lin_join_fixed_scheduler_unfixed_scheduler lin_extend_scheduler lin_get_unfixed_scheduler lin_set_unfixed_scheduler lin_get_fixed_scheduler histories history_fragments empty_history empty_history_fragment lin_set_history extend_history join_history_fragments lin_get_history bra_configurations bra_initial_configurations bra_step_relation bra_marking_condition bra_marked_effect bra_unmarked_effect bra_fixed_schedulers bra_empty_fixed_scheduler bra_fixed_scheduler_extendable bra_get_fixed_scheduler bra_set_history bra_get_history Lin2BraConf Bra2LinConf Bra2LinStep Bra2LinFin
+    +
+
+assumes AX_Bra2LinConf_triv_with_get_scheduler: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> Bra2LinConf (Lin2BraConf cL) (lin_get_scheduler cL) = cL"
+
+assumes AX_Lin2BraDer_preserves_marking_condition: "
+  TSstructure G
+  \<Longrightarrow> GLIN.derivation_initial G dl
+  \<Longrightarrow> lin_marking_condition G dl
+  \<Longrightarrow> maximum_of_domain dl n
+  \<Longrightarrow> bra_marking_condition G (Lin2BraDer dl)"
+
+assumes AX_Bra2LinDer_preserves_marking_condition: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation_initial G db
+  \<Longrightarrow> bra_marking_condition G db
+  \<Longrightarrow> maximum_of_domain db n
+  \<Longrightarrow> lin_marking_condition G (Bra2LinDer G db n)"
+
+assumes AX_Bra2LinConf_on_empty_bra_sched_closed: "
+  TSstructure G
+  \<Longrightarrow> cB \<in> bra_configurations G
+  \<Longrightarrow> bra_get_fixed_scheduler cB = bra_empty_fixed_scheduler G
+  \<Longrightarrow> Bra2LinConf cB (lin_empty_scheduler G) \<in> lin_configurations G"
+
+assumes AX_Bra2LinFin_on_empty_fixed_scheduler: "
+  TSstructure G
+  \<Longrightarrow> Bra2LinFin G (bra_empty_fixed_scheduler G) = lin_empty_scheduler G"
+
+assumes AX_Lin2BraConf_Bra2LinConf_idemp: "
+  TSstructure G
+  \<Longrightarrow> cB \<in> bra_configurations G
+  \<Longrightarrow> s \<in> lin_schedulers G
+  \<Longrightarrow> Bra2LinConf cB s \<in> lin_configurations G
+  \<Longrightarrow> cB = Lin2BraConf (Bra2LinConf cB s)"
+
+assumes AX_Bra2LinStep_is_compatible_with_lin_unfixed_scheduler_right_quotient: "
+  TSstructure G
+  \<Longrightarrow> c1L \<in> lin_configurations G
+  \<Longrightarrow> c3L \<in> lin_configurations G
+  \<Longrightarrow> cB \<in> bra_configurations G
+  \<Longrightarrow> lin_step_relation G c1L e c2L
+  \<Longrightarrow> sL = Bra2LinFin G (bra_get_fixed_scheduler cB)
+  \<Longrightarrow> sLUF
+      = lin_get_unfixed_scheduler
+          (Bra2LinConf
+            (Lin2BraConf c3L)
+            (lin_extend_scheduler sE2 sL))
+  \<Longrightarrow> lin_set_unfixed_scheduler
+        c2L
+        (lin_extend_unfixed_scheduler sE3 sLUF)
+      = Bra2LinConf
+          (Lin2BraConf c2L)
+          (lin_extend_scheduler
+            (lin_join_scheduler_fragments sE1 sE2)
+            sL)
+  \<Longrightarrow> lin_set_unfixed_scheduler
+        c1L
+        (lin_extend_unfixed_scheduler
+          (lin_join_scheduler_fragments
+            (the
+              (lin_unfixed_scheduler_right_quotient
+                (lin_get_unfixed_scheduler c1L)
+                (lin_get_unfixed_scheduler c2L)))
+            sE3)
+          sLUF)
+      = Bra2LinConf
+          (Lin2BraConf c1L)
+          (lin_extend_scheduler
+            (lin_join_scheduler_fragments
+              (Bra2LinStep (Lin2BraConf c1L) e (Lin2BraConf c2L))
+              (lin_join_scheduler_fragments sE1 sE2))
+            sL)"
+
+assumes AX_lin_unfixed_scheduler_right_quotient_drop_proper: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> cB \<in> bra_configurations G
+  \<Longrightarrow> sE \<in> lin_scheduler_fragments G
+  \<Longrightarrow> Bra2LinConf cB (lin_extend_scheduler sE sL)
+        \<in> lin_configurations G
+  \<Longrightarrow> \<not> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler cB)
+      \<longrightarrow> \<not> bra_fixed_scheduler_extendable G
+              (bra_get_fixed_scheduler (Lin2BraConf cL))
+  \<Longrightarrow> sL = Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cL))
+  \<Longrightarrow> cL2 = Bra2LinConf cB (lin_extend_scheduler sE sL)
+  \<Longrightarrow> lin_set_unfixed_scheduler
+        cL2
+        (lin_extend_unfixed_scheduler
+          (the
+            (lin_unfixed_scheduler_right_quotient
+              (lin_get_unfixed_scheduler cL2)
+              (lin_get_unfixed_scheduler
+                (Bra2LinConf (Lin2BraConf cL) sL))))
+          (lin_get_unfixed_scheduler cL))
+  = Bra2LinConf
+      cB
+      (lin_extend_scheduler sE (lin_get_scheduler cL))"
+
+assumes AX_Lin2BraConf_ignores_set_unfixed_scheduler: "
+  TSstructure G
+  \<Longrightarrow> cB \<in> bra_configurations G
+  \<Longrightarrow> s \<in> lin_schedulers G
+  \<Longrightarrow> cB = Lin2BraConf (lin_set_unfixed_scheduler (Bra2LinConf cB s) sUF)"
+
+assumes AX_Lin2BraConf_preserves_fixed_scheduler_extendable: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler (Lin2BraConf cL)) = lin_fixed_scheduler_extendable G (lin_get_fixed_scheduler cL)"
+
+assumes AX_Bra2LinStep_Bra2LinFin_compatible: "
+  TSstructure G
+  \<Longrightarrow> bra_step_relation G cB1 e cB2
+  \<Longrightarrow> cB1 \<in> bra_configurations G
+  \<Longrightarrow> \<not> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler cB1)
+  \<Longrightarrow> lin_extend_scheduler (Bra2LinStep cB1 e cB2) (Bra2LinFin G (bra_get_fixed_scheduler cB2)) = Bra2LinFin G (bra_get_fixed_scheduler cB1)"
+
+assumes AX_Bra2LinFin_takes_entire_fixed_scheduler: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> \<not> lin_unfixed_scheduler_extendable G (lin_get_unfixed_scheduler cL)
+  \<Longrightarrow> Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cL)) = lin_get_scheduler cL"
+
+assumes AX_combine_consumed_and_remaining_scheduler: "
+  TSstructure G
+  \<Longrightarrow> s \<in> lin_schedulers G
+  \<Longrightarrow> cL1 \<in> lin_configurations G
+  \<Longrightarrow> lin_step_relation G cL1 e (Bra2LinConf cB2 s)
+  \<Longrightarrow> lin_extend_scheduler (Bra2LinStep (Lin2BraConf cL1) e cB2) s =
+    lin_get_scheduler cL1"
+
+assumes AX_Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> cL = Bra2LinConf (Lin2BraConf cL) (lin_get_scheduler cL)"
+
+assumes AX_bra2lin_preserves_unmarked_effect: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation_initial G db
+  \<Longrightarrow> x \<in> bra_unmarked_effect G db
+  \<Longrightarrow> maximum_of_domain db n
+  \<Longrightarrow> x \<in> lin_unmarked_effect G (Bra2LinDer G db n)"
+
+assumes AX_lin2bra_preserves_unmarked_effect: "
+  TSstructure G
+  \<Longrightarrow> GLIN.derivation_initial G dl
+  \<Longrightarrow> x \<in> lin_unmarked_effect G dl
+  \<Longrightarrow> maximum_of_domain dl n
+  \<Longrightarrow> x \<in> bra_unmarked_effect G (Lin2BraDer dl)"
+
+assumes AX_bra2lin_preserves_marked_effect: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation_initial G db
+  \<Longrightarrow> bra_marking_condition G db
+  \<Longrightarrow> x \<in> bra_marked_effect G db
+  \<Longrightarrow> maximum_of_domain db n
+  \<Longrightarrow> \<exists>i.
+  i\<le>n
+  \<and> bra_marking_condition G (derivation_take db i)
+  \<and> x \<in> lin_marked_effect G (Bra2LinDer G (derivation_take db i) i)"
+
+assumes AX_lin2bra_preserves_marked_effect: "
+  TSstructure G
+  \<Longrightarrow> GLIN.derivation_initial G dl
+  \<Longrightarrow> lin_marking_condition G dl
+  \<Longrightarrow> x \<in> lin_marked_effect G dl
+  \<Longrightarrow> maximum_of_domain dl n
+  \<Longrightarrow> x \<in> bra_marked_effect G (Lin2BraDer dl)"
+
+assumes AX_Lin2BraConf_enforces_compatible_history_fragment_SB: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> GLIN.get_accessible_configurations G
+  \<Longrightarrow> lin_step_relation G cL e1 cL1
+  \<Longrightarrow> lin_step_relation G cL e2 cL2
+  \<Longrightarrow> GBRA.compatible_history_fragment_SB G (Lin2BraConf cL)
+        (Lin2BraConf cL1) (Lin2BraConf cL2)"
+
+assumes AX_Bra2LinDer_allows_slim_step1: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation_initial G d
+  \<Longrightarrow> bra_step_relation G c e1 c1
+  \<Longrightarrow> bra_step_relation G c e2 c2
+  \<Longrightarrow> d i = Some (pair ei c)
+  \<Longrightarrow> bra_get_history c1 = extend_history (bra_get_history c) hf2
+  \<Longrightarrow> bra_get_history c2 = extend_history (bra_get_history c) (join_history_fragments hf2 hf1)
+  \<Longrightarrow> hf1 \<noteq> empty_history_fragment G
+  \<Longrightarrow> dL = Bra2LinDer G
+             (derivation_append d (der2 c e2 c2) i)
+             (Suc i)
+  \<Longrightarrow> GLIN.derivation_initial G dL
+  \<Longrightarrow> hf1 \<in> history_fragments G
+  \<Longrightarrow> hf2 \<in> history_fragments G
+  \<Longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1)
+  \<Longrightarrow> Ex (lin_step_relation G (the (get_configuration (dL i))) e1)"
+
+assumes AX_Bra2LinDer_allows_slim_step2: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation_initial G d
+  \<Longrightarrow> bra_step_relation G c e1 c1
+  \<Longrightarrow> bra_step_relation G c e2 c2
+  \<Longrightarrow> d i = Some (pair ei c)
+  \<Longrightarrow> bra_get_history c1 = extend_history (bra_get_history c) hf1
+  \<Longrightarrow> bra_get_history c2 = extend_history (bra_get_history c) hf2
+  \<Longrightarrow> GBRA.history_fragment_prefixes G hf1 =
+    GBRA.history_fragment_prefixes G hf2
+  \<Longrightarrow> dL = Bra2LinDer G
+             (derivation_append d (der2 c e2 c2) i)
+             (Suc i)
+  \<Longrightarrow> GLIN.derivation_initial G dL
+  \<Longrightarrow> hf1 \<in> history_fragments G
+  \<Longrightarrow> hf2 \<in> history_fragments G
+  \<Longrightarrow> (bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c2) \<longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1))
+  \<Longrightarrow> Ex (lin_step_relation G (the (get_configuration (dL i))) e1)"
+
+context ATS_Branching_Versus_Linear2 begin
+
+lemma set_constructed_sched_vs_set_constructed_schedUF_Fin: "
+  TSstructure G
+  \<Longrightarrow> cL1 \<in> lin_configurations G
+  \<Longrightarrow> lin_set_unfixed_scheduler cL1 (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf cL1) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cL1))))) =
+                 Bra2LinConf (Lin2BraConf cL1) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cL1)))"
+  apply(rule AX_Bra2LinConf_only_modifies_lin_unfixed_scheduler)
+   apply(force)
+  apply(rule AX_Bra2LinFin_creates_proper_extension)
+   apply(force)
+  apply(rule AX_Lin2BraConf_preserves_configurations)
+   apply(force)
+  apply(force)
+  done
+
+lemma set_constructed_sched_vs_set_constructed_schedUF: "
+  TSstructure G
+  \<Longrightarrow> cL1 \<in> lin_configurations G
+  \<Longrightarrow> bra_step_relation G (Lin2BraConf cL1) e cL2
+  \<Longrightarrow> s \<in> lin_schedulers G
+  \<Longrightarrow> Bra2LinConf cL2 s \<in> lin_configurations G
+  \<Longrightarrow> cLIN = Bra2LinConf (Lin2BraConf cL1) (lin_extend_scheduler (Bra2LinStep (Lin2BraConf cL1) e cL2) s)
+  \<Longrightarrow> lin_set_unfixed_scheduler cL1 (lin_get_unfixed_scheduler cLIN) = cLIN"
+  apply(clarsimp)
+  apply(rule_tac
+      t="lin_set_unfixed_scheduler cL1 (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf cL1) (lin_extend_scheduler (Bra2LinStep (Lin2BraConf cL1) e cL2) s)))"
+      in ssubst)
+   apply(rule AX_Bra2LinConf_only_modifies_lin_unfixed_scheduler)
+    apply(force)
+   apply(rule AX_Bra2LinStep_translates_backwards_Bra2LinConf_closed)
+      apply(force)
+     apply(rule AX_Lin2BraConf_preserves_configurations)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(force)
+  apply(force)
+  done
+
+lemma proper_removal_of_scheduler_parts: "
+  TSstructure G
+  \<Longrightarrow> cL1 \<in> lin_configurations G
+  \<Longrightarrow> lin_step_relation G cL1 e cL2
+  \<Longrightarrow> lin_extend_scheduler (Bra2LinStep (Lin2BraConf cL1) e (Lin2BraConf cL2)) (lin_get_scheduler cL2) = lin_get_scheduler cL1"
+  apply(rule AX_combine_consumed_and_remaining_scheduler)
+     apply(force)
+    apply(rule GLIN.AX_get_scheduler_closed)
+     apply(force)
+    apply (metis GLIN.AX_step_relation_preserves_belongs)
+   apply(force)
+  apply(rule_tac
+      t="(Bra2LinConf (Lin2BraConf cL2) (lin_get_scheduler cL2))"
+      and s="cL2"
+      in subst)
+   apply(rule AX_Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler)
+    apply(force)
+   apply (metis GLIN.AX_step_relation_preserves_belongs)
+  apply(force)
+  done
+
+lemma Bra2LinConf_Lin2BraConf_on_unextendable_scheduler_fragments: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> \<not> lin_unfixed_scheduler_extendable G (lin_get_unfixed_scheduler cL)
+  \<Longrightarrow> cL = Bra2LinConf (Lin2BraConf cL) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cL)))"
+  apply(rule_tac
+      t="(Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cL)))"
+      in ssubst)
+   prefer 2
+   apply(rule AX_Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler)
+    apply(force)
+   apply(force)
+  apply(rule AX_Bra2LinFin_takes_entire_fixed_scheduler)
+    apply(force)
+   apply(force)
+  apply(force)
+  done
+
+lemma translate_proper_idemp_doulbe_transfer_on_head: "
+  TSstructure G
+  \<Longrightarrow> s \<in> lin_schedulers G
+  \<Longrightarrow> cL1 \<in> lin_configurations G
+  \<Longrightarrow> lin_step_relation G cL1 e (Bra2LinConf cB2 s)
+  \<Longrightarrow> cL1 = Bra2LinConf (Lin2BraConf cL1) (lin_extend_scheduler (Bra2LinStep (Lin2BraConf cL1) e cB2) s)"
+  apply(rule_tac
+      t="(lin_extend_scheduler (Bra2LinStep (Lin2BraConf cL1) e cB2) s)"
+      and s="X" for X
+      in ssubst)
+   prefer 2
+   apply(rule AX_Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler)
+    apply(force)
+   apply(force)
+  apply(rule AX_combine_consumed_and_remaining_scheduler)
+     apply(force)
+    apply(force)
+   apply(force)
+  apply(force)
+  done
+
+lemma Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler: "
+  TSstructure G
+  \<Longrightarrow> cL \<in> lin_configurations G
+  \<Longrightarrow> sL \<in> lin_schedulers G
+  \<Longrightarrow> cL = Bra2LinConf (Lin2BraConf cL) sL
+  \<Longrightarrow> sL = lin_get_scheduler cL"
+  apply (metis AX_Bra2LinConf_inj AX_Bra2LinConf_triv_with_get_scheduler AX_Lin2BraConf_preserves_configurations)
+  done
+
+lemma Bra2LinConf_closed_wrt_Bra2LinDer_prime_prime: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation G db
+  \<Longrightarrow> GBRA.belongs G db
+  \<Longrightarrow> db n = Some (pair e1 c1)
+  \<Longrightarrow> n\<le>m
+  \<Longrightarrow> db m = Some (pair e2 (Lin2BraConf c2))
+  \<Longrightarrow> c2 \<in> lin_configurations G
+  \<Longrightarrow> Bra2LinConf c1 (lin_extend_scheduler (Bra2LinDer' G db m n) (lin_get_scheduler c2)) \<in> lin_configurations G"
+  apply(induct "m-n" arbitrary: n m e1 c1 e2 c2)
+   apply(rename_tac n m e1 c1 e2 c2)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac n e2 c2)(*strict*)
+   apply(simp add: Bra2LinDer'_def)
+   apply(rule_tac
+      t="case n of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq n m'"
+      and s="[]"
+      in ssubst)
+    apply(rename_tac n e2 c2)(*strict*)
+    apply(case_tac n)
+     apply(rename_tac n e2 c2)(*strict*)
+     apply(clarsimp)
+    apply(rename_tac n e2 c2 nat)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac e2 c2 nat)(*strict*)
+    apply (metis lessI nat_seqEmpty)
+   apply(rename_tac n e2 c2)(*strict*)
+   apply(clarsimp)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (lin_get_scheduler c2)"
+      and s="lin_get_scheduler c2"
+      in ssubst)
+    apply(rename_tac n e2 c2)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_left_neutral)
+     apply(rename_tac n e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac n e2 c2)(*strict*)
+    apply(rule GLIN.AX_get_scheduler_closed)
+     apply(rename_tac n e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac n e2 c2)(*strict*)
+    apply(force)
+   apply(rename_tac n e2 c2)(*strict*)
+   apply(rule_tac
+      s="c2"
+      in ssubst)
+    apply(rename_tac n e2 c2)(*strict*)
+    apply(rule AX_Bra2LinConf_triv_with_get_scheduler)
+     apply(rename_tac n e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac n e2 c2)(*strict*)
+    apply(force)
+   apply(rename_tac n e2 c2)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+  apply(erule_tac
+      x="Suc n"
+      in meta_allE)
+  apply(erule_tac
+      x="m"
+      in meta_allE)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. db (Suc n) = Some (pair (Some e) c)")
+   apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+   prefer 2
+   apply(subgoal_tac "\<exists>e c. db (Suc n) = Some (pair (Some e) c)")
+    apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+    prefer 2
+    apply(rule_tac
+      m="m"
+      in GBRA.pre_some_position_is_some_position_prime)
+       apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+   apply(simp add: Lin2BraDer_def derivation_map_def)
+  apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(erule_tac
+      x="Some e"
+      in meta_allE)
+  apply(erule_tac
+      x="c"
+      in meta_allE)
+  apply(erule_tac
+      x="e2"
+      in meta_allE)
+  apply(erule_tac
+      x="c2"
+      in meta_allE)
+  apply(clarsimp)
+  apply(erule meta_impE)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(erule meta_impE)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(rule_tac
+      t="Bra2LinDer' G db m n"
+      and s="lin_join_scheduler_fragments (Bra2LinStep c1 e (c)) (Bra2LinDer' G db m (Suc n))"
+      in ssubst)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule Bra2LinDer_prime_pullout_head)
+          apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+          apply(force)
+         apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+         apply(force)
+        apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+        apply(force)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinStep c1 e (c)) (Bra2LinDer' G db m (Suc n))) (lin_get_scheduler c2) "
+      and s=" lin_extend_scheduler (Bra2LinStep c1 e (c)) (lin_extend_scheduler (Bra2LinDer' G db m (Suc n)) (lin_get_scheduler c2))"
+      in ssubst)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(rule AX_Bra2LinStep_closed)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(rule GBRA.belongs_configurations)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(rule GBRA.position_change_due_to_step_relation)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+        apply(force)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply (metis GLIN.AX_get_scheduler_closed)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(rule AX_Bra2LinStep_translates_backwards_Bra2LinConf_closed)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(rule GBRA.belongs_configurations)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.position_change_due_to_step_relation)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(force)
+  done
+
+lemma map_eqI: "
+  length w = length v
+  \<Longrightarrow> (\<And>i. i<length w \<Longrightarrow> f (w!i) = g (v!i))
+  \<Longrightarrow> map f w = map g v"
+  apply(induct w arbitrary: v)
+   apply(rename_tac v)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac a w v)(*strict*)
+  apply(clarsimp)
+  apply(case_tac v)
+   apply(rename_tac a w v)(*strict*)
+   apply(force)
+  apply(rename_tac a w v aa list)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac a w aa list)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac a w aa list)(*strict*)
+   apply(force)
+  apply(rename_tac a w aa list)(*strict*)
+  apply(force)
+  done
+
+lemma eq_by_map_eq: "
+  map f w = map g v
+  \<Longrightarrow> i<length w
+  \<Longrightarrow> f (w!i) = x
+  \<Longrightarrow> g (v!i) = y
+  \<Longrightarrow> x=y"
+  apply (metis map_eq_imp_length_eq nth_map)
+  done
+
+lemma Bra2LinDer_prime_derivation_append_drop: "
+  derivation_append_fit d1 d2 n
+  \<Longrightarrow> GBRA.derivation G d2
+  \<Longrightarrow> Bra2LinDer' G (derivation_append d1 d2 n) (n+m) n = Bra2LinDer' G d2 m 0"
+  apply(simp add: Bra2LinDer'_def)
+  apply(subgoal_tac " (map (\<lambda>na. case derivation_append d1 d2 n na of Some (pair e1 c1) \<Rightarrow> case derivation_append d1 d2 n (Suc na) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (case n + m of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq n m')) = (map (\<lambda>n. case d2 n of Some (pair e1 c1) \<Rightarrow> case d2 (Suc n) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (case m of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq 0 m'))")
+   apply(force)
+  apply(induct m)
+   apply(clarsimp)
+   apply(case_tac n)
+    apply(clarsimp)
+   apply(rename_tac nat)(*strict*)
+   apply(clarsimp)
+   apply(rule_tac
+      t="nat_seq (Suc nat) nat"
+      and s="[]"
+      in ssubst)
+    apply(rename_tac nat)(*strict*)
+    apply (metis lessI nat_seqEmpty)
+   apply(rename_tac nat)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac m)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="map (\<lambda>na. case derivation_append d1 d2 n na of Some (pair e1 c1) \<Rightarrow> case derivation_append d1 d2 n (Suc na) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (nat_seq n (n + m))"
+      and s="map (\<lambda>n. case d2 n of Some (pair e1 c1) \<Rightarrow> case d2 (Suc n) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (nat_seq 0 m)"
+      in ssubst)
+   apply(rename_tac m)(*strict*)
+   defer
+   apply(force)
+  apply(rename_tac m)(*strict*)
+  apply(rule map_eqI)
+   apply(rename_tac m)(*strict*)
+   apply(case_tac m)
+    apply(rename_tac m)(*strict*)
+    apply(clarsimp)
+    apply (metis Nat.add_0_right add_Suc_right list.size(3) list.size(4) natUptTo_n_n)
+   apply(rename_tac m nat)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac nat)(*strict*)
+   apply(rule_tac
+      t="length (nat_seq n (Suc (n + nat)))"
+      and s="Suc (n + nat) + 1 - n"
+      in ssubst)
+    apply(rename_tac nat)(*strict*)
+    apply (metis nat_seq_length_prime)
+   apply(rename_tac nat)(*strict*)
+   apply(rule_tac
+      t="length (nat_seq 0 (Suc nat))"
+      and s="Suc nat + 1 - 0"
+      in ssubst)
+    apply(rename_tac nat)(*strict*)
+    apply (metis nat_seq_length_prime)
+   apply(rename_tac nat)(*strict*)
+   apply(force)
+  apply(rename_tac m i)(*strict*)
+  apply(subgoal_tac "length (nat_seq n (n+m)) = (n+m) + 1 - n")
+   apply(rename_tac m i)(*strict*)
+   prefer 2
+   apply (metis nat_seq_length_prime)
+  apply(rename_tac m i)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "nat_seq 0 m ! i = 0+i")
+   apply(rename_tac m i)(*strict*)
+   prefer 2
+   apply(rule nat_seq_nth_compute)
+    apply(rename_tac m i)(*strict*)
+    apply(force)
+   apply(rename_tac m i)(*strict*)
+   apply(force)
+  apply(rename_tac m i)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "nat_seq n (n + m) ! i = n + i")
+   apply(rename_tac m i)(*strict*)
+   prefer 2
+   apply(rule nat_seq_nth_compute)
+    apply(rename_tac m i)(*strict*)
+    apply(force)
+   apply(rename_tac m i)(*strict*)
+   apply(force)
+  apply(rename_tac m i)(*strict*)
+  apply(clarsimp)
+  apply(simp add: derivation_append_def)
+  apply(case_tac "n+m")
+   apply(rename_tac m i)(*strict*)
+   apply(clarsimp)
+   apply(simp add: derivation_append_fit_def)
+   apply(case_tac "d1 0")
+    apply(clarsimp)
+   apply(rename_tac a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac option b)(*strict*)
+   apply(subgoal_tac "\<exists>c. d2 0 = Some (pair None c)")
+    apply(rename_tac option b)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac option c)(*strict*)
+    apply(simp add: derivation_append_def)
+   apply(rename_tac option b)(*strict*)
+   apply(rule GBRA.some_position_has_details_at_0)
+   apply(force)
+  apply(rename_tac m i nat)(*strict*)
+  apply(clarsimp)
+  apply(case_tac i)
+   apply(rename_tac m i nat)(*strict*)
+   prefer 2
+   apply(rename_tac m i nat nata)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac m nat nata)(*strict*)
+   apply(case_tac "Suc nata=m")
+    apply(rename_tac m nat nata)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac nata)(*strict*)
+    apply(case_tac "d2 (Suc nata)")
+     apply(rename_tac nata)(*strict*)
+     apply(clarsimp)
+    apply(rename_tac nata a)(*strict*)
+    apply(clarsimp)
+    apply(case_tac a)
+    apply(rename_tac nata a option b)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac nata option b)(*strict*)
+    apply(simp add: derivation_append_def)
+   apply(rename_tac m nat nata)(*strict*)
+   apply(rule_tac
+      g="(\<lambda>n. case_option undefined (case_derivation_configuration (\<lambda>e1 c1. case_option undefined (case_derivation_configuration (\<lambda>a c2. case a of Some e2 \<Rightarrow> Bra2LinStep c1 e2 c2)) (d2 (Suc n)))) (d2 n))"
+      and f="(\<lambda>na. case_option undefined (case_derivation_configuration (\<lambda>e1 c1. case_option undefined (case_derivation_configuration (\<lambda>a c2. case a of Some e2 \<Rightarrow> Bra2LinStep c1 e2 c2)) (derivation_append d1 d2 n (Suc na)))) (if na \<le> n then d1 na else d2 (na - n)))"
+      and i="Suc nata"
+      and w="nat_seq n nat"
+      in eq_by_map_eq)
+      apply(rename_tac m nat nata)(*strict*)
+      apply(force)
+     apply(rename_tac m nat nata)(*strict*)
+     apply(subgoal_tac "length (nat_seq n nat) = nat + 1 - n")
+      apply(rename_tac m nat nata)(*strict*)
+      prefer 2
+      apply (metis nat_seq_length_prime)
+     apply(rename_tac m nat nata)(*strict*)
+     apply(clarsimp)
+     apply(force)
+    apply(rename_tac m nat nata)(*strict*)
+    apply(rule_tac
+      t="nat_seq n nat ! Suc nata"
+      and s="n+Suc nata"
+      in ssubst)
+     apply(rename_tac m nat nata)(*strict*)
+     apply(rule nat_seq_nth_compute)
+      apply(rename_tac m nat nata)(*strict*)
+      apply(force)
+     apply(rename_tac m nat nata)(*strict*)
+     apply(force)
+    apply(rename_tac m nat nata)(*strict*)
+    apply(rule_tac
+      t="nat_seq n (n+m) ! Suc nata"
+      and s="n+Suc nata"
+      in ssubst)
+     apply(rename_tac m nat nata)(*strict*)
+     apply(rule nat_seq_nth_compute)
+      apply(rename_tac m nat nata)(*strict*)
+      apply(force)
+     apply(rename_tac m nat nata)(*strict*)
+     apply(force)
+    apply(rename_tac m nat nata)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac m nat nata)(*strict*)
+   apply(case_tac m)
+    apply(rename_tac m nat nata)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac m nat nata natb)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac nata natb)(*strict*)
+   apply(rule_tac
+      t="nat_seq 0 natb ! Suc nata"
+      and s="0+Suc nata"
+      in ssubst)
+    apply(rename_tac nata natb)(*strict*)
+    apply(rule nat_seq_nth_compute)
+     apply(rename_tac nata natb)(*strict*)
+     apply(force)
+    apply(rename_tac nata natb)(*strict*)
+    apply(force)
+   apply(rename_tac nata natb)(*strict*)
+   apply(rule_tac
+      t="nat_seq 0 (Suc natb) ! Suc nata"
+      and s="0+Suc nata"
+      in ssubst)
+    apply(rename_tac nata natb)(*strict*)
+    apply(rule nat_seq_nth_compute)
+     apply(rename_tac nata natb)(*strict*)
+     apply(force)
+    apply(rename_tac nata natb)(*strict*)
+    apply(force)
+   apply(rename_tac nata natb)(*strict*)
+   apply(clarsimp)
+   apply(case_tac "d2 (Suc nata)")
+    apply(rename_tac nata natb)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac nata natb a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac nata natb a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac nata natb option b)(*strict*)
+   apply(rule_tac
+      t="nat_seq 0 natb ! Suc nata"
+      and s="0+Suc nata"
+      in ssubst)
+    apply(rename_tac nata natb option b)(*strict*)
+    apply(rule nat_seq_nth_compute)
+     apply(rename_tac nata natb option b)(*strict*)
+     apply(force)
+    apply(rename_tac nata natb option b)(*strict*)
+    apply(force)
+   apply(rename_tac nata natb option b)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac m i nat)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac m nat)(*strict*)
+  apply(simp add:derivation_append_fit_def)
+  apply(case_tac "d1 n")
+   apply(rename_tac m nat)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac m nat a)(*strict*)
+  apply(case_tac a)
+  apply(rename_tac m nat a option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac m nat option b)(*strict*)
+  apply(subgoal_tac "\<exists>c. d2 0 = Some (pair None c)")
+   apply(rename_tac m nat option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac m nat option c)(*strict*)
+   apply(simp add: derivation_append_def)
+  apply(rename_tac m nat option b)(*strict*)
+  apply(rule GBRA.some_position_has_details_at_0)
+  apply(force)
+  done
+
+lemma Bra2LinDer_prime_derivation_append_drop_Ext: "
+  derivation_append_fit d1 d2 n
+  \<Longrightarrow> GBRA.derivation G d2
+  \<Longrightarrow> a=n+m+x
+  \<Longrightarrow> b=n+x
+  \<Longrightarrow> c=m+x
+  \<Longrightarrow> Bra2LinDer' G (derivation_append d1 d2 n) a b = Bra2LinDer' G d2 c x"
+  apply(clarsimp)
+  apply(simp add: Bra2LinDer'_def)
+  apply(subgoal_tac " (map (\<lambda>na. case derivation_append d1 d2 n na of Some (pair e1 c1) \<Rightarrow> case derivation_append d1 d2 n (Suc na) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (case n + m + x of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq (n+x) m')) = (map (\<lambda>n. case d2 n of Some (pair e1 c1) \<Rightarrow> case d2 (Suc n) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (case (m+x) of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq x m'))")
+   apply(force)
+  apply(induct m)
+   apply(clarsimp)
+   apply(case_tac "n+x")
+    apply(clarsimp)
+   apply(rename_tac nat)(*strict*)
+   apply(clarsimp)
+   apply(rule_tac
+      t="nat_seq (Suc nat) nat"
+      and s="[]"
+      in ssubst)
+    apply(rename_tac nat)(*strict*)
+    apply (metis lessI nat_seqEmpty)
+   apply(rename_tac nat)(*strict*)
+   apply(clarsimp)
+   apply(case_tac x)
+    apply(rename_tac nat)(*strict*)
+    apply(force)
+   apply(rename_tac nat nata)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac nata)(*strict*)
+   apply (metis lessI nat_seqEmpty)
+  apply(rename_tac m)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="map (\<lambda>na. case derivation_append d1 d2 n na of Some (pair e1 c1) \<Rightarrow> case derivation_append d1 d2 n (Suc na) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (nat_seq (n+x) (n + m+x))"
+      and s="map (\<lambda>n. case d2 n of Some (pair e1 c1) \<Rightarrow> case d2 (Suc n) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (nat_seq x (m+x))"
+      in ssubst)
+   apply(rename_tac m)(*strict*)
+   defer
+   apply(force)
+  apply(rename_tac m)(*strict*)
+  apply(rule map_eqI)
+   apply(rename_tac m)(*strict*)
+   apply(case_tac m)
+    apply(rename_tac m)(*strict*)
+    apply(clarsimp)
+    apply (metis Nat.add_0_right add_Suc_right list.size(3) list.size(4) natUptTo_n_n)
+   apply(rename_tac m nat)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac nat)(*strict*)
+   apply(rule_tac
+      t="length (nat_seq (n+x) (Suc (n + nat+x)))"
+      and s="Suc (n + nat+x) + 1 - (n+x)"
+      in ssubst)
+    apply(rename_tac nat)(*strict*)
+    apply (metis nat_seq_length_prime)
+   apply(rename_tac nat)(*strict*)
+   apply(rule_tac
+      t="length (nat_seq x (Suc (nat+x)))"
+      and s="Suc (nat+x) + 1 - x"
+      in ssubst)
+    apply(rename_tac nat)(*strict*)
+    apply (metis nat_seq_length_prime)
+   apply(rename_tac nat)(*strict*)
+   apply(force)
+  apply(rename_tac m i)(*strict*)
+  apply(simp add: derivation_append_def)
+  apply(subgoal_tac "length (nat_seq (n+x) (n+m+x)) = (n+m+x) + 1 - (n+x)")
+   apply(rename_tac m i)(*strict*)
+   prefer 2
+   apply (metis nat_seq_length_prime)
+  apply(rename_tac m i)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="nat_seq (n + x) (n + m + x) ! i"
+      and s="n+x+i"
+      in ssubst)
+   apply(rename_tac m i)(*strict*)
+   apply(rule nat_seq_nth_compute)
+    apply(rename_tac m i)(*strict*)
+    apply(force)
+   apply(rename_tac m i)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac m i)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. d1 n = Some (pair e c)")
+   apply(rename_tac m i)(*strict*)
+   prefer 2
+   apply(simp add: derivation_append_fit_def)
+   apply(case_tac "d1 n")
+    apply(rename_tac m i)(*strict*)
+    apply(force)
+   apply(rename_tac m i a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac m i a option b)(*strict*)
+   apply(force)
+  apply(rename_tac m i)(*strict*)
+  apply(subgoal_tac "\<exists>c. d2 0 = Some (pair None c)")
+   apply(rename_tac m i)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_at_0)
+   apply(force)
+  apply(rename_tac m i)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac m i)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac m e c ca)(*strict*)
+   apply(rule_tac
+      t="nat_seq 0 (m + 0) ! 0"
+      and s="0+0"
+      in ssubst)
+    apply(rename_tac m e c ca)(*strict*)
+    apply(rule nat_seq_nth_compute)
+     apply(rename_tac m e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac m e c ca)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac m e c ca)(*strict*)
+   apply(rule_tac
+      t="nat_seq 0 m ! 0"
+      and s="0+0"
+      in ssubst)
+    apply(rename_tac m e c ca)(*strict*)
+    apply(rule nat_seq_nth_compute)
+     apply(rename_tac m e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac m e c ca)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac m e c ca)(*strict*)
+   apply(clarsimp)
+   apply(simp add: derivation_append_def)
+   apply(case_tac "d2 (Suc 0)")
+    apply(rename_tac m e c ca)(*strict*)
+    apply(force)
+   apply(rename_tac m e c ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac m e c ca a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac m e c ca option b)(*strict*)
+   apply(simp add: derivation_append_fit_def)
+   apply(clarsimp)
+  apply(rename_tac m i)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac m i e c ca)(*strict*)
+  apply(rule_tac
+      t="derivation_append d1 d2 n (Suc (n + x + i))"
+      and s="d2 (Suc(x+i))"
+      in ssubst)
+   apply(rename_tac m i e c ca)(*strict*)
+   apply(simp add: derivation_append_def)
+  apply(rename_tac m i e c ca)(*strict*)
+  apply(rule_tac
+      t="nat_seq x (m + x) ! i"
+      and s="x+i"
+      in ssubst)
+   apply(rename_tac m i e c ca)(*strict*)
+   apply(rule nat_seq_nth_compute)
+    apply(rename_tac m i e c ca)(*strict*)
+    apply(force)
+   apply(rename_tac m i e c ca)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac m i e c ca)(*strict*)
+  apply(metis)
+  done
+
+lemma Bra2LinDer_prime_empty: "
+  Bra2LinDer' G d n n = lin_empty_scheduler_fragment G"
+  apply(simp add: Bra2LinDer'_def)
+  apply(case_tac n)
+   apply(clarsimp)
+  apply(rename_tac nat)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="nat_seq (Suc nat) nat"
+      and s="[]"
+      in ssubst)
+   apply(rename_tac nat)(*strict*)
+   apply (metis lessI nat_seqEmpty)
+  apply(rename_tac nat)(*strict*)
+  apply(clarsimp)
+  done
+
+lemma AX_set_constructed_sched_vs_set_constructed_schedUF_lift: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation G db
+  \<Longrightarrow> GBRA.belongs G db
+  \<Longrightarrow> c1 \<in> lin_configurations G
+  \<Longrightarrow> db n = Some (pair e1 (Lin2BraConf c1))
+  \<Longrightarrow> n\<le>m
+  \<Longrightarrow> db m = Some (pair e2 c2)
+  \<Longrightarrow> lin_set_unfixed_scheduler c1 (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c1) (lin_extend_scheduler (Bra2LinDer' G db m n) (Bra2LinFin G (bra_get_fixed_scheduler c2))))) = Bra2LinConf (Lin2BraConf c1) (lin_extend_scheduler (Bra2LinDer' G db m n) (Bra2LinFin G (bra_get_fixed_scheduler c2)))"
+  apply(induct "m-n" arbitrary: n m e1 c1 e2 c2)
+   apply(rename_tac n m e1 c1 e2 c2)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac n c1 e2)(*strict*)
+   apply(rule_tac
+      t="Bra2LinDer' G db n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+    apply(rename_tac n c1 e2)(*strict*)
+    apply(rule Bra2LinDer_prime_empty)
+   apply(rename_tac n c1 e2)(*strict*)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c1)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c1))"
+      in ssubst)
+    apply(rename_tac n c1 e2)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_left_neutral)
+     apply(rename_tac n c1 e2)(*strict*)
+     apply(force)
+    apply(rename_tac n c1 e2)(*strict*)
+    apply(rule AX_Bra2LinFin_closed)
+     apply(rename_tac n c1 e2)(*strict*)
+     apply(force)
+    apply(rename_tac n c1 e2)(*strict*)
+    apply(rule GBRA.belongs_configurations)
+     apply(rename_tac n c1 e2)(*strict*)
+     apply(force)
+    apply(rename_tac n c1 e2)(*strict*)
+    apply(force)
+   apply(rename_tac n c1 e2)(*strict*)
+   apply(rule set_constructed_sched_vs_set_constructed_schedUF_Fin)
+    apply(rename_tac n c1 e2)(*strict*)
+    apply(force)
+   apply(rename_tac n c1 e2)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+  apply(clarsimp)
+  apply(erule_tac
+      x="Suc n"
+      in meta_allE)
+  apply(erule_tac
+      x="m"
+      in meta_allE)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. db (Suc n) = Some (pair (Some e) c)")
+   apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="m"
+      in GBRA.pre_some_position_is_some_position_prime)
+      apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(erule_tac
+      x="Some e"
+      in meta_allE)
+  apply(erule_tac
+      x="Bra2LinConf c (Bra2LinFin G (bra_get_fixed_scheduler c))"
+      in meta_allE)
+  apply(clarsimp)
+  apply(erule_tac
+      x="e2"
+      in meta_allE)
+  apply(erule_tac
+      x="c2"
+      in meta_allE)
+  apply(clarsimp)
+  apply(erule_tac meta_impE)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(erule_tac meta_impE)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule AX_Bra2LinFin_creates_proper_extension)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(erule_tac meta_impE)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule AX_Lin2BraConf_Bra2LinConf_idemp)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(rule GBRA.belongs_configurations)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(rule AX_Bra2LinFin_closed)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(rule GBRA.belongs_configurations)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule AX_Bra2LinFin_creates_proper_extension)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(erule_tac meta_impE)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(subgoal_tac "Bra2LinDer' G db m n = lin_join_scheduler_fragments (Bra2LinStep (Lin2BraConf c1) e c) (Bra2LinDer' G db m (Suc n))")
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   prefer 2
+   apply(rule Bra2LinDer_prime_pullout_head)
+          apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+          apply(force)
+         apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+         apply(force)
+        apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+        apply(force)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(clarsimp)
+  apply(thin_tac "Bra2LinDer' G db m n = lin_join_scheduler_fragments (Bra2LinStep (Lin2BraConf c1) e c) (Bra2LinDer' G db m (Suc n))")
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(rule_tac
+      t=" (lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinStep (Lin2BraConf c1) e c) (Bra2LinDer' G db m (Suc n))) (Bra2LinFin G (bra_get_fixed_scheduler c2)))"
+      and s=" lin_extend_scheduler (Bra2LinStep (Lin2BraConf c1) e c) (lin_extend_scheduler (Bra2LinDer' G db m (Suc n)) (Bra2LinFin G (bra_get_fixed_scheduler c2)))"
+      in ssubst)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(rule AX_Bra2LinStep_closed)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(rule GBRA.belongs_configurations)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(rule GBRA.position_change_due_to_step_relation)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+        apply(force)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(rule set_constructed_sched_vs_set_constructed_schedUF)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(rule GBRA.position_change_due_to_step_relation)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    prefer 3
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+        apply(force)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+       apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+       apply(force)
+      apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+      apply(force)
+     apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+     apply(force)
+    apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+    apply(force)
+   apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+   apply(force)
+  apply(rename_tac x n m e1 c1 e2 c2 e c)(*strict*)
+  apply(force)
+  done
+
+lemma Bra2LinDer_prime_derivation_append_drop2: "
+  derivation_append_fit d1 d2 n
+  \<Longrightarrow> GBRA.derivation G d1
+  \<Longrightarrow> d1 n\<noteq>None
+  \<Longrightarrow> y\<le>x
+  \<Longrightarrow> x\<le>n
+  \<Longrightarrow> x=x'
+  \<Longrightarrow> y=y'
+  \<Longrightarrow> Bra2LinDer' G (derivation_append d1 d2 n) x y = Bra2LinDer' G d1 x' y'"
+  apply(clarsimp)
+  apply(rename_tac y)(*strict*)
+  apply(simp add: Bra2LinDer'_def)
+  apply(rule_tac
+      t="map (\<lambda>n. case d1 n of Some (pair e1 c1) \<Rightarrow> case d1 (Suc n) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (case x' of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq y' m')"
+      and s="map (\<lambda>na. case derivation_append d1 d2 n na of Some (pair e1 c1) \<Rightarrow> case derivation_append d1 d2 n (Suc na) of Some (pair (Some e2) c2) \<Rightarrow> Bra2LinStep c1 e2 c2) (case x' of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq y' m')"
+      in ssubst)
+   apply(rename_tac y)(*strict*)
+   defer
+   apply(force)
+  apply(rename_tac y)(*strict*)
+  apply(rule listEqI)
+   apply(rename_tac y)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac y i)(*strict*)
+  apply(clarsimp)
+  apply(case_tac x')
+   apply(rename_tac y i)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac y i nat)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "length (nat_seq y' nat) = nat + 1 - y'")
+   apply(rename_tac y i nat)(*strict*)
+   prefer 2
+   apply (metis nat_seq_length_prime)
+  apply(rename_tac y i nat)(*strict*)
+  apply(subgoal_tac "nat_seq y' nat ! i = y'+i")
+   apply(rename_tac y i nat)(*strict*)
+   prefer 2
+   apply(rule nat_seq_nth_compute)
+    apply(rename_tac y i nat)(*strict*)
+    apply(force)
+   apply(rename_tac y i nat)(*strict*)
+   apply(force)
+  apply(rename_tac y i nat)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "y'+i<n")
+   apply(rename_tac y i nat)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac y i nat)(*strict*)
+  apply(subgoal_tac "\<exists>e1 e2 c1 c2. d1 (y'+i) = Some (pair e1 c1) \<and> d1 (Suc (y'+i)) = Some (pair (Some e2) c2) \<and> bra_step_relation G c1 e2 c2")
+   apply(rename_tac y i nat)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="n"
+      in GBRA.step_detail_before_some_position)
+     apply(rename_tac y i nat)(*strict*)
+     apply(force)
+    apply(rename_tac y i nat)(*strict*)
+    apply(force)
+   apply(rename_tac y i nat)(*strict*)
+   apply(force)
+  apply(rename_tac y i nat)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac y i nat e1 e2 c1 c2)(*strict*)
+  apply(simp add: derivation_append_def)
+  done
+
+lemma distrib_derivation_append_Bra2LinDer_hlp: "
+  TSstructure G
+  \<Longrightarrow> ATS.derivation_initial lin_initial_configurations lin_step_relation G dh
+  \<Longrightarrow> maximum_of_domain dh n
+  \<Longrightarrow> ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer dh)
+  \<Longrightarrow> maximum_of_domain (Lin2BraDer dh) n
+  \<Longrightarrow> ATS.derivation bra_step_relation G dc
+  \<Longrightarrow> ATS.belongs bra_configurations step_labels G dc
+  \<Longrightarrow> maximum_of_domain dc x
+  \<Longrightarrow> derivation_append_fit (Lin2BraDer dh) dc n
+  \<Longrightarrow> ATS.derivation lin_step_relation G (Bra2LinDer G dc x)
+  \<Longrightarrow> maximum_of_domain (Bra2LinDer G dc x) x
+  \<Longrightarrow> ATS.belongs lin_configurations step_labels G (Bra2LinDer G dc x)
+  \<Longrightarrow> xa \<le> n
+  \<Longrightarrow> dh xa = Some (pair e c)
+  \<Longrightarrow> dh n = Some (pair ea ca)
+  \<Longrightarrow> derivation_append (Lin2BraDer dh) dc n (n + x) = Some (pair option cb)
+  \<Longrightarrow> dc x = Some (pair eb cb)
+  \<Longrightarrow> dc 0 = Some (pair None cc)
+  \<Longrightarrow> lin_set_unfixed_scheduler c
+           (lin_extend_unfixed_scheduler
+             (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler c) (lin_get_unfixed_scheduler ca)))
+             (lin_get_unfixed_scheduler
+               (Bra2LinConf cc
+                 (lin_extend_scheduler
+                   (Bra2LinDer' G dc x 0)
+                   (Bra2LinFin G (bra_get_fixed_scheduler cb)))))) =
+          Bra2LinConf (Lin2BraConf c)
+           (lin_extend_scheduler
+             (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n)
+               (n + x) xa)
+             (Bra2LinFin G (bra_get_fixed_scheduler cb)))"
+  apply(induct "n-xa" arbitrary: n xa ea ca eb cb cc option cb e c)
+   apply(rename_tac n xa ea ca eb cb cc option e c)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+   apply(rule_tac
+      t="lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler ca) (lin_get_unfixed_scheduler ca)"
+      and s="Some(lin_empty_scheduler_fragment G)"
+      in ssubst)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs GLIN.AX_unfixed_scheduler_right_quotient_all GLIN.AX_get_unfixed_scheduler_closed)
+   apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+   apply(clarsimp)
+   apply(rule_tac
+      t="lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler (Bra2LinConf cc (lin_extend_scheduler (Bra2LinDer' G dc x 0) (Bra2LinFin G (bra_get_fixed_scheduler cb)))))"
+      and s=" (lin_get_unfixed_scheduler (Bra2LinConf cc (lin_extend_scheduler (Bra2LinDer' G dc x 0) (Bra2LinFin G (bra_get_fixed_scheduler cb)))))"
+      in ssubst)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply(rule GLIN.AX_extend_unfixed_scheduler_left_neutral)
+     apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+     apply(force)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+     apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+     apply(force)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+         apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+         apply(force)
+        apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+        apply(force)
+       apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+       apply(force)
+      apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+      apply(force)
+     apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+     apply(force)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply(force)
+   apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+   apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc xa) (xa + x) xa"
+      and s="Bra2LinDer' G dc x 0"
+      in ssubst)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply(rule Bra2LinDer_prime_derivation_append_drop)
+     apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+     apply(force)
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    apply(force)
+   apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+   apply(subgoal_tac "Lin2BraConf ca = cc")
+    apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+    prefer 2
+    apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def derivation_append_def)
+   apply(rename_tac xa ea ca eb cb cc option)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac xa ea ca eb cb option)(*strict*)
+   apply(rule AX_set_constructed_sched_vs_set_constructed_schedUF_lift)
+         apply(rename_tac xa ea ca eb cb option)(*strict*)
+         apply(force)
+        apply(rename_tac xa ea ca eb cb option)(*strict*)
+        apply(force)
+       apply(rename_tac xa ea ca eb cb option)(*strict*)
+       apply(force)
+      apply(rename_tac xa ea ca eb cb option)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+       apply(rename_tac xa ea ca eb cb option)(*strict*)
+       apply(rule GLIN.derivation_initial_belongs)
+        apply(rename_tac xa ea ca eb cb option)(*strict*)
+        apply(force)
+       apply(rename_tac xa ea ca eb cb option)(*strict*)
+       apply(force)
+      apply(rename_tac xa ea ca eb cb option)(*strict*)
+      apply(force)
+     apply(rename_tac xa ea ca eb cb option)(*strict*)
+     apply(force)
+    apply(rename_tac xa ea ca eb cb option)(*strict*)
+    apply(force)
+   apply(rename_tac xa ea ca eb cb option)(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+  apply(clarsimp)
+  apply(erule_tac
+      x="n"
+      in meta_allE)
+  apply(erule_tac
+      x="Suc xa"
+      in meta_allE)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. dh (Suc xa) =Some (pair (Some e) c)")
+   apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="n"
+      in GLIN.pre_some_position_is_some_position_prime)
+      apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+      apply(simp add: GLIN.derivation_initial_def)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+    apply(force)
+   apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+  apply(erule_tac
+      x="ea"
+      in meta_allE)
+  apply(erule_tac
+      x="ca"
+      in meta_allE)
+  apply(erule_tac
+      x="eb"
+      in meta_allE)
+  apply(erule_tac
+      x="cb"
+      in meta_allE)
+  apply(erule_tac
+      x="cc"
+      in meta_allE)
+  apply(erule_tac
+      x="option"
+      in meta_allE)
+  apply(erule_tac
+      x="Some ec"
+      in meta_allE)
+  apply(erule_tac
+      x="cd"
+      in meta_allE)
+  apply(clarsimp)
+  apply(erule meta_impE)
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+  apply(erule meta_impE)
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+  apply(subgoal_tac "\<exists>e c. (Lin2BraDer dh) xa = Some (pair e c)")
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+   prefer 2
+   apply(simp add: derivation_map_def Lin2BraDer_def)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+  apply(subgoal_tac "\<exists>e c. (Lin2BraDer dh) (Suc xa) = Some (pair (Some e) c)")
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+   prefer 2
+   apply(simp add: derivation_map_def Lin2BraDer_def)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd")(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+  apply(subgoal_tac "Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n+x) xa = lin_join_scheduler_fragments (Bra2LinStep ce ee cf) (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n+x) (Suc xa)) ")
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+   prefer 2
+   apply(rule Bra2LinDer_prime_pullout_head)
+          apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+         apply(rule GBRA.derivation_concat2)
+            apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+            apply(rule Lin2BraConf_preserves_steps_lift)
+              apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+              apply(force)
+             apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+             apply(simp add: GLIN.derivation_initial_def)
+            apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+            apply(rule GLIN.derivation_initial_belongs)
+             apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+             apply(force)
+            apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+            apply(force)
+           apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+           apply(force)
+          apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+         apply(simp add: derivation_append_fit_def derivation_append_def)
+         apply(simp add: Lin2BraDer_def)
+         apply(simp add: derivation_map_def)
+        apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+        apply(rule GBRA.derivation_append_preserves_belongs)
+          apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+         apply(rule Lin2BraDer_preserves_belongs)
+           apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+           apply(force)
+          apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+          apply(simp add: GLIN.derivation_initial_def)
+         apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+         apply(rule GLIN.derivation_initial_belongs)
+          apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+        apply(rule GBRA.derivation_concat2)
+           apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+           apply(rule Lin2BraConf_preserves_steps_lift)
+             apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+             apply(force)
+            apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+            apply(simp add: GLIN.derivation_initial_def)
+           apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+           apply(rule GLIN.derivation_initial_belongs)
+            apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+            apply(force)
+           apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+           apply(force)
+          apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+        apply(simp add: derivation_append_fit_def derivation_append_def)
+        apply(simp add: Lin2BraDer_def)
+        apply(simp add: derivation_map_def)
+       apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+      apply(simp add: derivation_append_def)
+     apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+     apply(simp add: Lin2BraDer_def)
+     apply(simp add: derivation_map_def)
+     apply(simp add: derivation_append_def)
+    apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+    apply(simp add: Lin2BraDer_def)
+    apply(simp add: derivation_map_def)
+    apply(simp add: derivation_append_def)
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+   apply(simp add: Lin2BraDer_def)
+   apply(simp add: derivation_map_def)
+   apply(clarsimp)
+   apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+   apply(rule AX_Lin2BraConf_preserves_configurations)
+    apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+    apply(force)
+   apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+   apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+    apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+    apply(rule GLIN.derivation_initial_belongs)
+     apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+    apply(force)
+   apply(rename_tac xb n xa ea ca eb cb cc option c "cd" ed ee)(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+  apply(clarsimp)
+  apply(thin_tac "Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n + x) xa = lin_join_scheduler_fragments (Bra2LinStep ce ee cf) (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n + x) (Suc xa))")
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+  apply(subgoal_tac "Lin2BraConf ca = cc \<and> e = ed \<and> Lin2BraConf c = ce \<and> ec = ee \<and> Lin2BraConf cd = cf")
+   apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+   prefer 2
+   apply(simp add: derivation_append_fit_def derivation_append_def)
+   apply(simp add: Lin2BraDer_def)
+   apply(simp add: derivation_map_def)
+  apply(rename_tac xb n xa ea ca eb cb cc option e c ec "cd" ed ee ce cf)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+  apply(subgoal_tac "the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler c) (lin_get_unfixed_scheduler ca)) = lin_join_scheduler_fragments (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler c) (lin_get_unfixed_scheduler cd))) (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler cd) (lin_get_unfixed_scheduler ca)))")
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   prefer 2
+   apply(rule_tac
+      d="dh"
+      in GLIN.AX_unfixed_scheduler_right_quotient_split)
+          apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         apply(simp add: GLIN.derivation_initial_def)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(rule GLIN.derivation_initial_belongs)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(force)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+    apply(force)
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n + x) (Suc xa) = lin_join_scheduler_fragments (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) n (Suc xa)) (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n + x) n)")
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   prefer 2
+   apply(rule Bra2LinDer_prime_split)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(rule GBRA.derivation_concat2)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(rule Lin2BraConf_preserves_steps_lift)
+          apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         apply(simp add: GLIN.derivation_initial_def)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(rule GLIN.derivation_initial_belongs)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(force)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(simp add: derivation_append_fit_def derivation_append_def)
+     apply(simp add: Lin2BraDer_def)
+     apply(simp add: derivation_map_def)
+    apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+    apply(rule GBRA.derivation_append_preserves_belongs)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(rule Lin2BraDer_preserves_belongs)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(simp add: GLIN.derivation_initial_def)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(rule GLIN.derivation_initial_belongs)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+    apply(rule GBRA.derivation_concat2)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(rule Lin2BraConf_preserves_steps_lift)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(simp add: GLIN.derivation_initial_def)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(rule GLIN.derivation_initial_belongs)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(force)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+    apply(simp add: derivation_append_fit_def derivation_append_def)
+    apply(simp add: Lin2BraDer_def)
+    apply(simp add: derivation_map_def)
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n + x) n = Bra2LinDer' G dc x 0")
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   apply(clarsimp)
+   apply(rule AX_Bra2LinStep_is_compatible_with_lin_unfixed_scheduler_right_quotient)
+          apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+          prefer 6
+          apply(force)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         prefer 6
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(force)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(rule GLIN.derivation_initial_belongs)
+         apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+         apply(force)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(force)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(rule GLIN.derivation_initial_belongs)
+        apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+        apply(force)
+       apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+       apply(force)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(rule_tac
+      d="dc"
+      in GBRA.belongs_configurations)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(force)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+    apply(rule_tac
+      d="dh"
+      in GLIN.position_change_due_to_step_relation)
+      apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+      apply(simp add: GLIN.derivation_initial_def)
+     apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+     apply(force)
+    apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+    apply(force)
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   apply(force)
+  apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+  apply(rule Bra2LinDer_prime_derivation_append_drop)
+   apply(rename_tac xb n xa ea ca eb cb option c "cd" ed ee)(*strict*)
+   apply(force)+
+  done
+
+lemma distrib_derivation_append_Bra2LinDer: "
+  TSstructure G
+  \<Longrightarrow> GLIN.derivation_initial G dh
+  \<Longrightarrow> maximum_of_domain dh n
+  \<Longrightarrow> GBRA.derivation_initial G (Lin2BraDer dh)
+  \<Longrightarrow> maximum_of_domain (Lin2BraDer dh) n
+  \<Longrightarrow> GBRA.derivation G dc
+  \<Longrightarrow> GBRA.belongs G dc
+  \<Longrightarrow> maximum_of_domain dc x
+  \<Longrightarrow> derivation_append_fit (Lin2BraDer dh) dc n
+  \<Longrightarrow> GLIN.derivation G (Bra2LinDer G dc x)
+  \<Longrightarrow> maximum_of_domain (Bra2LinDer G dc x) x
+  \<Longrightarrow> GLIN.belongs G (Bra2LinDer G dc x)
+  \<Longrightarrow> derivation_append (GLIN.map_unfixed_scheduler dh (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth dh n))) (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dc x) 0))) (Bra2LinDer G dc x) n = Bra2LinDer G (derivation_append (Lin2BraDer dh) dc n) (n + x)"
+  apply(rule ext)
+  apply(rename_tac xa)(*strict*)
+  apply(case_tac "xa>n+x")
+   apply(rename_tac xa)(*strict*)
+   apply(simp add: derivation_append_def Bra2LinDer_def)
+   apply(clarsimp)
+   apply(force)
+  apply(rename_tac xa)(*strict*)
+  apply(case_tac "xa\<ge>n")
+   apply(rename_tac xa)(*strict*)
+   apply(simp (no_asm) add: derivation_append_def Bra2LinDer_def)
+   apply(case_tac "x<xa-n")
+    apply(rename_tac xa)(*strict*)
+    apply(force)
+   apply(rename_tac xa)(*strict*)
+   apply(clarsimp)
+   apply(rule conjI)
+    apply(rename_tac xa)(*strict*)
+    apply(clarsimp)
+    apply(simp add: GLIN.map_unfixed_scheduler_def)
+    apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+     prefer 2
+     apply(rule GLIN.some_position_has_details_before_max_dom)
+       apply(simp add: GLIN.derivation_initial_def)
+       apply(force)
+      apply(force)
+     apply(force)
+    apply(clarsimp)
+    apply(rename_tac e c)(*strict*)
+    apply(simp add: GLIN.get_unfixed_scheduler_nth_def)
+    apply(subgoal_tac "\<exists>e c. dc x = Some (pair e c)")
+     apply(rename_tac e c)(*strict*)
+     prefer 2
+     apply(rule GBRA.some_position_has_details_before_max_dom)
+       apply(rename_tac e c)(*strict*)
+       apply(force)
+      apply(rename_tac e c)(*strict*)
+      apply(force)
+     apply(rename_tac e c)(*strict*)
+     apply(force)
+    apply(rename_tac e c)(*strict*)
+    apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+     apply(rename_tac e c)(*strict*)
+     prefer 2
+     apply(rule GBRA.some_position_has_details_at_0)
+     apply(force)
+    apply(rename_tac e c)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac e c ea ca cb)(*strict*)
+    apply(simp add: get_configuration_def)
+    apply(rule_tac
+      t="lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler c) (lin_get_unfixed_scheduler c)"
+      and s="Some (lin_empty_scheduler_fragment G)"
+      in ssubst)
+     apply(rename_tac e c ea ca cb)(*strict*)
+     apply(rule GLIN.AX_unfixed_scheduler_right_quotient_all)
+      apply(rename_tac e c ea ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea ca cb)(*strict*)
+     apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+      apply(rename_tac e c ea ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea ca cb)(*strict*)
+     apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+      apply(rename_tac e c ea ca cb)(*strict*)
+      apply(rule GLIN.derivation_initial_belongs)
+       apply(rename_tac e c ea ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac e c ea ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac e c ea ca cb)(*strict*)
+    apply(clarsimp)
+    apply(rule conjI)
+     apply(rename_tac e c ea ca cb)(*strict*)
+     prefer 2
+     apply(clarsimp)
+     apply(simp add: Lin2BraDer_def derivation_map_def derivation_append_fit_def)
+     apply(clarsimp)
+     apply(rename_tac e c ea cb)(*strict*)
+     apply(case_tac x)
+      apply(rename_tac e c ea cb)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea cb nat)(*strict*)
+     apply(clarsimp)
+     apply(rule_tac
+      t="lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c) (lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cb)))))"
+      and s="lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c) (lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cb))))"
+      in ssubst)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(rule GLIN.AX_extend_unfixed_scheduler_left_neutral)
+       apply(rename_tac e c ea cb nat)(*strict*)
+       apply(force)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+       apply(rename_tac e c ea cb nat)(*strict*)
+       apply(force)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+           apply(rename_tac e c ea cb nat)(*strict*)
+           apply(force)
+          apply(rename_tac e c ea cb nat)(*strict*)
+          apply(force)
+         apply(rename_tac e c ea cb nat)(*strict*)
+         apply(force)
+        apply(rename_tac e c ea cb nat)(*strict*)
+        apply(force)
+       apply(rename_tac e c ea cb nat)(*strict*)
+       apply(force)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea cb nat)(*strict*)
+     apply(rule_tac
+      t="Suc (n+nat)"
+      and s="n+Suc nat"
+      in ssubst)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea cb nat)(*strict*)
+     apply(fold derivation_append_def)
+     apply(simp only: Lin2BraDer_def derivation_map_def derivation_append_fit_def)
+     apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (\<lambda>n. case dh n of None \<Rightarrow> None | Some (pair e c) \<Rightarrow> Some (pair e (Lin2BraConf c))) dc n) (n+Suc nat) n"
+      and s="Bra2LinDer' G dc (Suc nat) 0"
+      in ssubst)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(rule Bra2LinDer_prime_derivation_append_drop)
+       apply(rename_tac e c ea cb nat)(*strict*)
+       apply(simp add: derivation_append_fit_def)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea cb nat)(*strict*)
+     apply(rule AX_set_constructed_sched_vs_set_constructed_schedUF_lift)
+           apply(rename_tac e c ea cb nat)(*strict*)
+           apply(force)
+          apply(rename_tac e c ea cb nat)(*strict*)
+          apply(force)
+         apply(rename_tac e c ea cb nat)(*strict*)
+         apply(force)
+        apply(rename_tac e c ea cb nat)(*strict*)
+        apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+         apply(rename_tac e c ea cb nat)(*strict*)
+         apply(rule GLIN.derivation_initial_belongs)
+          apply(rename_tac e c ea cb nat)(*strict*)
+          apply(force)
+         apply(rename_tac e c ea cb nat)(*strict*)
+         apply(force)
+        apply(rename_tac e c ea cb nat)(*strict*)
+        apply(force)
+       apply(rename_tac e c ea cb nat)(*strict*)
+       apply(force)
+      apply(rename_tac e c ea cb nat)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea cb nat)(*strict*)
+     apply(force)
+    apply(rename_tac e c ea ca cb)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac e c ca)(*strict*)
+    apply(simp (no_asm) add: Lin2BraDer_def derivation_map_def derivation_append_def)
+    apply(clarsimp)
+    apply(simp (no_asm) add: Lin2BraDer_def derivation_map_def derivation_append_def)
+    apply(clarsimp)
+    apply(rule_tac
+      t="Bra2LinDer' G dc 0 0"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+     apply(rename_tac e c ca)(*strict*)
+     apply(rule Bra2LinDer_prime_empty)
+    apply(rename_tac e c ca)(*strict*)
+    apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+     apply(rename_tac e c ca)(*strict*)
+     apply(rule Bra2LinDer_prime_empty)
+    apply(rename_tac e c ca)(*strict*)
+    apply(subgoal_tac "Lin2BraConf c = ca")
+     apply(rename_tac e c ca)(*strict*)
+     prefer 2
+     apply(simp add: derivation_append_fit_def)
+     apply(simp add: Lin2BraDer_def derivation_map_def)
+    apply(rename_tac e c ca)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac e c)(*strict*)
+    apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))"
+      and s="(Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))"
+      in ssubst)
+     apply(rename_tac e c)(*strict*)
+     apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GLIN.AX_extend_scheduler_left_neutral)
+    apply(rename_tac e c)(*strict*)
+    apply(rule_tac
+      t="lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))))"
+      and s="lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))))"
+      in ssubst)
+     apply(rename_tac e c)(*strict*)
+     apply (metis AX_Bra2LinFin_creates_proper_extension GBRA.belongs_configurations GLIN.AX_extend_unfixed_scheduler_left_neutral GLIN.AX_get_unfixed_scheduler_closed)
+    apply(rename_tac e c)(*strict*)
+    apply(rule set_constructed_sched_vs_set_constructed_schedUF_Fin)
+     apply(rename_tac e c)(*strict*)
+     apply(force)
+    apply(rename_tac e c)(*strict*)
+    apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+   apply(rename_tac xa)(*strict*)
+   apply(clarsimp)
+   apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+    apply(rename_tac xa)(*strict*)
+    prefer 2
+    apply(rule GLIN.some_position_has_details_before_max_dom)
+      apply(rename_tac xa)(*strict*)
+      apply(simp add: GLIN.derivation_initial_def)
+      apply(force)
+     apply(rename_tac xa)(*strict*)
+     apply(force)
+    apply(rename_tac xa)(*strict*)
+    apply(force)
+   apply(rename_tac xa)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac xa e c)(*strict*)
+   apply(subgoal_tac "\<exists>e c. dc x = Some (pair e c)")
+    apply(rename_tac xa e c)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_before_max_dom)
+      apply(rename_tac xa e c)(*strict*)
+      apply(force)
+     apply(rename_tac xa e c)(*strict*)
+     apply(force)
+    apply(rename_tac xa e c)(*strict*)
+    apply(force)
+   apply(rename_tac xa e c)(*strict*)
+   apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+    apply(rename_tac xa e c)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_at_0)
+    apply(force)
+   apply(rename_tac xa e c)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac xa e c ea ca cb)(*strict*)
+   apply(case_tac x)
+    apply(rename_tac xa e c ea ca cb)(*strict*)
+    apply(force)
+   apply(rename_tac xa e c ea ca cb nat)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac x e c ea ca cb nat)(*strict*)
+   apply(rule_tac
+      t="derivation_append (Lin2BraDer dh) dc n (Suc (n + nat))"
+      and s="dc (Suc nat)"
+      in ssubst)
+    apply(rename_tac x e c ea ca cb nat)(*strict*)
+    apply(simp add: derivation_append_def)
+   apply(rename_tac x e c ea ca cb nat)(*strict*)
+   apply(rule_tac
+      t="derivation_append (Lin2BraDer dh) dc n x"
+      and s="dc (x-n)"
+      in ssubst)
+    apply(rename_tac x e c ea ca cb nat)(*strict*)
+    apply(simp add: derivation_append_def)
+   apply(rename_tac x e c ea ca cb nat)(*strict*)
+   apply(case_tac "dc (x-n)")
+    apply(rename_tac x e c ea ca cb nat)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac x e c ea ca cb nat a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac x e c ea ca cb nat a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac x e c ea ca cb nat option b)(*strict*)
+   apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (Suc (n + nat)) x"
+      and s="Bra2LinDer' G dc (Suc nat) (x - n)"
+      in ssubst)
+    apply(rename_tac x e c ea ca cb nat option b)(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac x e c ea ca cb nat option b)(*strict*)
+   apply(subgoal_tac "\<exists>k. n+k=x")
+    apply(rename_tac x e c ea ca cb nat option b)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac e c ea ca cb nat option b k)(*strict*)
+    apply(case_tac k)
+     apply(rename_tac e c ea ca cb nat option b k)(*strict*)
+     apply(force)
+    apply(rename_tac e c ea ca cb nat option b k nata)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac e c ea ca cb nat option b nata)(*strict*)
+    apply(subgoal_tac "\<exists>k. nata+k=nat")
+     apply(rename_tac e c ea ca cb nat option b nata)(*strict*)
+     apply(clarsimp)
+     apply(rename_tac e c ea ca cb option b nata k)(*strict*)
+     apply(rule Bra2LinDer_prime_derivation_append_drop_Ext)
+         apply(rename_tac e c ea ca cb option b nata k)(*strict*)
+         apply(force)
+        apply(rename_tac e c ea ca cb option b nata k)(*strict*)
+        apply(force)
+       apply(rename_tac e c ea ca cb option b nata k)(*strict*)
+       apply(force)
+      apply(rename_tac e c ea ca cb option b nata k)(*strict*)
+      apply(force)
+     apply(rename_tac e c ea ca cb option b nata k)(*strict*)
+     apply(force)
+    apply(rename_tac e c ea ca cb nat option b nata)(*strict*)
+    apply (metis add_diff_inverse)
+   apply(rename_tac x e c ea ca cb nat option b)(*strict*)
+   apply (metis le_iff_add)
+  apply(rename_tac xa)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "n>xa")
+   apply(rename_tac xa)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac xa)(*strict*)
+  apply(clarsimp)
+  apply(simp (no_asm) add: derivation_append_def)
+  apply(clarsimp)
+  apply(simp add: GLIN.map_unfixed_scheduler_def)
+  apply(subgoal_tac "\<exists>e c. dh xa= Some (pair e c)")
+   apply(rename_tac xa)(*strict*)
+   prefer 2
+   apply(rule GLIN.some_position_has_details_before_max_dom)
+     apply(rename_tac xa)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+     apply(force)
+    apply(rename_tac xa)(*strict*)
+    apply(force)
+   apply(rename_tac xa)(*strict*)
+   apply(force)
+  apply(rename_tac xa)(*strict*)
+  apply(subgoal_tac "\<exists>e c. dh n= Some (pair e c)")
+   apply(rename_tac xa)(*strict*)
+   prefer 2
+   apply(rule GLIN.some_position_has_details_before_max_dom)
+     apply(rename_tac xa)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+     apply(force)
+    apply(rename_tac xa)(*strict*)
+    apply(force)
+   apply(rename_tac xa)(*strict*)
+   apply(force)
+  apply(rename_tac xa)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa e ea c ca)(*strict*)
+  apply(fold derivation_append_def)
+  apply(simp add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+  apply(simp (no_asm) add: Bra2LinDer_def)
+  apply(clarsimp)
+  apply(case_tac "derivation_append (Lin2BraDer dh) dc n (n + x)")
+   apply(rename_tac xa e ea c ca)(*strict*)
+   apply(simp add: derivation_append_def)
+   apply(case_tac x)
+    apply(rename_tac xa e ea c ca)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac x e ea c ca)(*strict*)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac xa e ea c ca nat)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac x e ea c ca nat)(*strict*)
+   apply(simp add: maximum_of_domain_def)
+  apply(rename_tac xa e ea c ca a)(*strict*)
+  apply(case_tac a)
+  apply(rename_tac xa e ea c ca a option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa e ea c ca option b)(*strict*)
+  apply(rule_tac
+      t="derivation_append (Lin2BraDer dh) dc n xa"
+      and s="Lin2BraDer dh xa"
+      in ssubst)
+   apply(rename_tac xa e ea c ca option b)(*strict*)
+   apply(simp add: derivation_append_def)
+  apply(rename_tac xa e ea c ca option b)(*strict*)
+  apply(simp (no_asm) add: Lin2BraDer_def derivation_map_def)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. dc x= Some (pair e c)")
+   apply(rename_tac xa e ea c ca option b)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_before_max_dom)
+     apply(rename_tac xa e ea c ca option b)(*strict*)
+     apply(force)
+    apply(rename_tac xa e ea c ca option b)(*strict*)
+    apply(force)
+   apply(rename_tac xa e ea c ca option b)(*strict*)
+   apply(force)
+  apply(rename_tac xa e ea c ca option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa e ea c ca option b eb cb)(*strict*)
+  apply(subgoal_tac "\<exists>c. dc 0= Some (pair None c)")
+   apply(rename_tac xa e ea c ca option b eb cb)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_at_0)
+   apply(force)
+  apply(rename_tac xa e ea c ca option b eb cb)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa e ea c ca option b eb cb cc)(*strict*)
+  apply(subgoal_tac "b=cb")
+   apply(rename_tac xa e ea c ca option b eb cb cc)(*strict*)
+   prefer 2
+   apply(simp add: derivation_append_def)
+   apply(case_tac x)
+    apply(rename_tac xa e ea c ca option b eb cb cc)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac x e ea c ca option b cb)(*strict*)
+    apply(simp add: derivation_append_fit_def)
+   apply(rename_tac xa e ea c ca option b eb cb cc nat)(*strict*)
+   apply(simp add: Lin2BraDer_def derivation_map_def)
+  apply(rename_tac xa e ea c ca option b eb cb cc)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa e ea c ca option eb cb cc)(*strict*)
+  apply(rule distrib_derivation_append_Bra2LinDer_hlp)
+                   apply(rename_tac xa e ea c ca option eb cb cc)(*strict*)
+                   apply(force)+
+  done
+
+lemma bfbra_to_bflin_hlp0: "
+  TSstructure G
+  \<Longrightarrow> ATS.derivation bra_step_relation G dc
+  \<Longrightarrow> ATS.belongs bra_configurations step_labels G dc
+  \<Longrightarrow> \<not> lin_unfixed_scheduler_extendable G (lin_get_unfixed_scheduler ca)
+  \<Longrightarrow> dc 0 = Some (pair None (Lin2BraConf ca))
+  \<Longrightarrow> ca \<in> lin_configurations G
+  \<Longrightarrow> dc x = Some (pair ea cb)
+  \<Longrightarrow> ca = Bra2LinConf (Lin2BraConf ca) (lin_extend_scheduler (Bra2LinDer' G dc x 0) (Bra2LinFin G (bra_get_fixed_scheduler cb)))"
+  apply(induct x arbitrary: ea cb)
+   apply(rename_tac ea cb)(*strict*)
+   apply(clarsimp)
+   apply(simp add: Bra2LinDer'_def)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf ca)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf ca))"
+      in ssubst)
+    apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GLIN.AX_extend_scheduler_left_neutral)
+   apply(rule Bra2LinConf_Lin2BraConf_on_unextendable_scheduler_fragments)
+     apply(force)
+    apply(force)
+   apply(force)
+  apply(rename_tac x ea cb)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e1 e2 c1 c2. dc x = Some (pair e1 c1) \<and> dc (Suc x) = Some (pair (Some e2) c2) \<and> bra_step_relation G c1 e2 c2")
+   apply(rename_tac x ea cb)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="Suc x"
+      in GBRA.step_detail_before_some_position)
+     apply(rename_tac x ea cb)(*strict*)
+     apply(force)
+    apply(rename_tac x ea cb)(*strict*)
+    apply(force)
+   apply(rename_tac x ea cb)(*strict*)
+   apply(force)
+  apply(rename_tac x ea cb)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(erule_tac
+      x="e1"
+      in meta_allE)
+  apply(erule_tac
+      x="c1"
+      in meta_allE)
+  apply(clarsimp)
+  apply(rule_tac
+      t="Bra2LinDer' G dc (Suc x) 0"
+      and s="Bra2LinDer' G dc (x+Suc 0) 0"
+      in ssubst)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply(force)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(rule_tac
+      t="Bra2LinDer' G dc (x+Suc 0) 0"
+      and s="lin_join_scheduler_fragments (Bra2LinDer' G dc x 0) (Bra2LinDer' G dc (x+Suc 0) x)"
+      in ssubst)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply(rule Bra2LinDer_prime_split)
+       apply(rename_tac x cb e1 e2 c1)(*strict*)
+       apply(force)
+      apply(rename_tac x cb e1 e2 c1)(*strict*)
+      apply(force)
+     apply(rename_tac x cb e1 e2 c1)(*strict*)
+     apply(force)
+    apply(rename_tac x cb e1 e2 c1)(*strict*)
+    apply(force)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply(force)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinDer' G dc x 0) (Bra2LinDer' G dc (Suc x) x)) (Bra2LinFin G (bra_get_fixed_scheduler cb))"
+      and s=" lin_extend_scheduler (Bra2LinDer' G dc x 0) (lin_extend_scheduler (Bra2LinDer' G dc (Suc x) x) (Bra2LinFin G (bra_get_fixed_scheduler cb)) ) "
+      in ssubst)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+      apply(rename_tac x cb e1 e2 c1)(*strict*)
+      apply(force)
+     apply(rename_tac x cb e1 e2 c1)(*strict*)
+     apply (metis Bra2LinDer_prime_closed GBRA.derivationNoFromNone less_eq_nat.simps(1))
+    apply(rename_tac x cb e1 e2 c1)(*strict*)
+    apply (metis Bra2LinDer_prime_closed GBRA.derivationNoFromNone_prime GBRA.derivationNoFromNone2 le_eq_less_or_eq less_Suc_eq)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (Bra2LinDer' G dc (Suc x) x) (Bra2LinFin G (bra_get_fixed_scheduler cb))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler c1)"
+      in ssubst)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(thin_tac "ca = Bra2LinConf (Lin2BraConf ca) (lin_extend_scheduler (Bra2LinDer' G dc x 0) (Bra2LinFin G (bra_get_fixed_scheduler c1)))")
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(simp add: Bra2LinDer'_def)
+  apply(rule_tac
+      t="nat_seq x x"
+      and s="[x]"
+      in ssubst)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply (metis natUptTo_n_n)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="lin_join_scheduler_fragments (lin_empty_scheduler_fragment G) (Bra2LinStep c1 e2 cb)"
+      and s="Bra2LinStep c1 e2 cb"
+      in ssubst)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply (metis AX_Bra2LinStep_closed GBRA.belongs_configurations GLIN.AX_join_scheduler_fragments_neutral_right)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(rule AX_Bra2LinStep_Bra2LinFin_compatible)
+     apply(rename_tac x cb e1 e2 c1)(*strict*)
+     apply(force)+
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply (metis GBRA.belongs_configurations)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply(rule GBRA.schedF_nonextendable_translates_backwards_lift)
+        apply(rename_tac x cb e1 e2 c1)(*strict*)
+        apply(force)
+       apply(rename_tac x cb e1 e2 c1)(*strict*)
+       apply(force)
+      apply(rename_tac x cb e1 e2 c1)(*strict*)
+      apply(force)
+     apply(rename_tac x cb e1 e2 c1)(*strict*)
+     defer
+     apply(force)
+    apply(rename_tac x cb e1 e2 c1)(*strict*)
+    apply(force)
+   apply(rename_tac x cb e1 e2 c1)(*strict*)
+   apply(force)
+  apply(rename_tac x cb e1 e2 c1)(*strict*)
+  apply (metis AX_Lin2BraConf_preserves_fixed_scheduler_extendable GLIN.AX_unfixed_scheduler_extendable_vs_fixed_scheduler_extendable)
+  done
+
+lemma bfbra_to_bflin_hlp1: "
+  TSstructure G
+  \<Longrightarrow> GLIN.derivation G d
+  \<Longrightarrow> GLIN.belongs G d
+  \<Longrightarrow> x \<le> n
+  \<Longrightarrow> maximum_of_domain d n
+  \<Longrightarrow> d n = Some (pair e c)
+  \<Longrightarrow> \<not> lin_fixed_scheduler_extendable G (lin_get_fixed_scheduler c)
+  \<Longrightarrow> d x = Bra2LinDer G (Lin2BraDer d) n x"
+  apply(induct "n-x" arbitrary: x)
+   apply(rename_tac x)(*strict*)
+   apply(clarsimp)
+   apply(simp add: Bra2LinDer_def Lin2BraDer_def derivation_map_def Bra2LinDer'_def)
+   apply(rule_tac
+      t="case_nat [] (nat_seq n) n"
+      and s="[]"
+      in ssubst)
+    apply(case_tac n)
+     apply(clarsimp)
+    apply(rename_tac nat)(*strict*)
+    apply(clarsimp)
+    apply (metis lessI nat_seqEmpty)
+   apply(clarsimp)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))"
+      in ssubst)
+    apply (metis AX_Bra2LinFin_closed GLIN.belongs_configurations AX_Lin2BraConf_preserves_configurations GLIN.AX_extend_scheduler_left_neutral)
+   apply(subgoal_tac "lin_get_unfixed_scheduler c = lin_empty_unfixed_scheduler G")
+    prefer 2
+    apply (metis GLIN.belongs_configurations GLIN.AX_not_extendable_fixed_scheduler_implies_empty_unfixed_scheduler)
+   apply (metis Bra2LinConf_Lin2BraConf_on_unextendable_scheduler_fragments GLIN.belongs_configurations GLIN.AX_unfixed_scheduler_extendable_vs_fixed_scheduler_extendable)
+  apply(rename_tac xa x)(*strict*)
+  apply(clarsimp)
+  apply(erule_tac
+      x="Suc x"
+      in meta_allE)
+  apply(erule meta_impE)
+   apply(rename_tac xa x)(*strict*)
+   apply(force)
+  apply(rename_tac xa x)(*strict*)
+  apply(erule meta_impE)
+   apply(rename_tac xa x)(*strict*)
+   apply(force)
+  apply(rename_tac xa x)(*strict*)
+  apply(simp add: Bra2LinDer_def)
+  apply(subgoal_tac "Suc x \<le> n")
+   apply(rename_tac xa x)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac xa x)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e1 e2 c1 c2. (Lin2BraDer d) x = Some (pair e1 c1) \<and> (Lin2BraDer d) (Suc x) = Some (pair (Some e2) c2) \<and> bra_step_relation G c1 e2 c2")
+   apply(rename_tac xa x)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="n"
+      in GBRA.step_detail_before_some_position)
+     apply(rename_tac xa x)(*strict*)
+     apply (metis Lin2BraConf_preserves_steps_lift)
+    apply(rename_tac xa x)(*strict*)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac xa x)(*strict*)
+   apply(force)
+  apply(rename_tac xa x)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+  apply(simp add: Lin2BraDer_def derivation_map_def)
+  apply(fold Lin2BraDer_def derivation_map_def)
+  apply(rule_tac
+      t="Bra2LinDer' G (Lin2BraDer d) n x"
+      and s="lin_join_scheduler_fragments (Bra2LinStep c1 e2 c2) (Bra2LinDer' G (Lin2BraDer d) n (Suc x))"
+      in ssubst)
+   apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+   apply(rule Bra2LinDer_prime_pullout_head)
+          apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+          apply(force)+
+         apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+         apply (metis Lin2BraConf_preserves_steps_lift)
+        apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+        apply (metis Lin2BraDer_preserves_belongs)
+       apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+       apply(force)+
+      apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+      apply(simp add: Lin2BraDer_def derivation_map_def)
+     apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+     apply(simp add: Lin2BraDer_def derivation_map_def)
+    apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+   apply(rule_tac d="Lin2BraDer d" in GBRA.belongs_configurations)
+    apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+    prefer 2
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+   apply(rule Lin2BraDer_preserves_belongs)
+     apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+  apply(case_tac "d x")
+   apply(rename_tac xa x e1 e2 c1 c2)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac xa x e1 e2 c1 c2 a)(*strict*)
+  apply(clarsimp)
+  apply(case_tac a)
+  apply(rename_tac xa x e1 e2 c1 c2 a option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+  apply(rule_tac
+      s="lin_extend_scheduler (Bra2LinStep (Lin2BraConf b) e2 c2) (lin_extend_scheduler (Bra2LinDer' G (Lin2BraDer d) n (Suc x)) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))))"
+      and t="lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinStep (Lin2BraConf b) e2 c2) (Bra2LinDer' G (Lin2BraDer d) n (Suc x))) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))"
+      in ssubst)
+   apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+      apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+      apply(force)
+     apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+     apply (metis AX_Bra2LinStep_closed GLIN.belongs_configurations AX_Lin2BraConf_preserves_configurations)
+    apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+    apply (metis Bra2LinDer_prime_closed maximum_of_domain_def Lin2BraConf_preserves_maximum_of_domain Lin2BraConf_preserves_steps_lift Lin2BraDer_preserves_belongs)
+   apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+   apply (metis AX_Bra2LinFin_closed GLIN.belongs_configurations AX_Lin2BraConf_preserves_configurations)
+  apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+  apply(rule translate_proper_idemp_doulbe_transfer_on_head)
+     apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+     apply(force)
+    apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_closed)
+      apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+      apply(force)
+     apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+     apply(rule Bra2LinDer_prime_closed)
+         apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+         apply(force)
+        apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+        apply (metis Lin2BraConf_preserves_steps_lift)
+       apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+       apply (metis Lin2BraDer_preserves_belongs)
+      apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+      apply (metis maximum_of_domain_def Lin2BraConf_preserves_maximum_of_domain)
+     apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+     apply(force)
+    apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+    apply (metis AX_Bra2LinFin_closed GLIN.belongs_configurations AX_Lin2BraConf_preserves_configurations)
+   apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+   apply (metis GLIN.belongs_configurations)
+  apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+  apply(rename_tac xa x e1 e2 c2 b)(*strict*)
+  apply (metis GLIN.stepOnlyDueToStepRelation)
+  done
+
+lemma bfbra_to_bflin_hlp2: "
+  TSstructure G
+  \<Longrightarrow> ATS.derivation_initial lin_initial_configurations lin_step_relation G dh
+  \<Longrightarrow> maximum_of_domain dh n
+  \<Longrightarrow> \<not> lin_unfixed_scheduler_extendable G (lin_get_unfixed_scheduler ca)
+  \<Longrightarrow> dh n = Some (pair e ca)
+  \<Longrightarrow> xa \<le> n
+  \<Longrightarrow> dh xa = Some (pair ec c)
+  \<Longrightarrow> c = Bra2LinConf (Lin2BraConf c) (lin_extend_scheduler (Bra2LinDer' G (Lin2BraDer dh) n xa) (lin_get_scheduler ca))"
+  apply(subgoal_tac "ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer dh)")
+   prefer 2
+   apply (metis Lin2BraConf_preserves_initiality_lift)
+  apply(induct "n-xa" arbitrary: xa ec c)
+   apply(rename_tac xa ec c)(*strict*)
+   apply(clarsimp)
+   apply(simp add: Bra2LinDer'_def)
+   apply(rule_tac
+      t="case n of 0 \<Rightarrow> [] | Suc m' \<Rightarrow> nat_seq n m'"
+      and s="[]"
+      in ssubst)
+    apply(case_tac n)
+     apply(clarsimp)
+    apply(rename_tac nat)(*strict*)
+    apply(clarsimp)
+    apply (metis lessI nat_seqEmpty)
+   apply(clarsimp)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (lin_get_scheduler ca)"
+      and s="lin_get_scheduler ca"
+      in ssubst)
+    apply(rule GLIN.AX_extend_scheduler_left_neutral)
+     apply(force)
+    apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs GLIN.AX_get_scheduler_closed)
+   apply(rule AX_Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler)
+    apply(force)
+   apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+  apply(rename_tac x xa ec c)(*strict*)
+  apply(clarsimp)
+  apply(erule_tac
+      x="Suc xa"
+      in meta_allE)
+  apply(subgoal_tac "\<exists>e1 e2 c1 c2. dh xa = Some (pair e1 c1) \<and> dh (Suc xa) = Some (pair (Some e2) c2) \<and> lin_step_relation G c1 e2 c2")
+   apply(rename_tac x xa ec c)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="n"
+      in GLIN.step_detail_before_some_position)
+     apply(rename_tac x xa ec c)(*strict*)
+     apply (metis GLIN.derivation_initial_is_derivation)
+    apply(rename_tac x xa ec c)(*strict*)
+    apply (metis maximum_of_domain_def)
+   apply(rename_tac x xa ec c)(*strict*)
+   apply(force)
+  apply(rename_tac x xa ec c)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(erule_tac
+      x="Some e2"
+      in meta_allE)
+  apply(erule_tac
+      x="c2"
+      in meta_allE)
+  apply(clarsimp)
+  apply(erule meta_impE)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(force)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(erule meta_impE)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(force)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(rule_tac
+      t="Bra2LinDer' G (Lin2BraDer dh) n xa"
+      and s="lin_join_scheduler_fragments (Bra2LinStep (Lin2BraConf c) e2 (Lin2BraConf c2)) (Bra2LinDer' G (Lin2BraDer dh) n (Suc xa))"
+      in ssubst)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(rule Bra2LinDer_prime_pullout_head)
+          apply(rename_tac x xa ec c e2 c2)(*strict*)
+          apply(force)+
+         apply(rename_tac x xa ec c e2 c2)(*strict*)
+         apply(rule GBRA.derivation_initial_is_derivation)
+         apply (metis)
+        apply(rename_tac x xa ec c e2 c2)(*strict*)
+        apply(rule GBRA.derivation_initial_belongs)
+         apply(rename_tac x xa ec c e2 c2)(*strict*)
+         apply(force)
+        apply(rename_tac x xa ec c e2 c2)(*strict*)
+        apply (metis)
+       apply(rename_tac x xa ec c e2 c2)(*strict*)
+       apply(force)
+      apply(rename_tac x xa ec c e2 c2)(*strict*)
+      apply(simp add: Lin2BraDer_def derivation_map_def)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply(simp add: Lin2BraDer_def derivation_map_def)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(rule_tac d="Lin2BraDer dh" and i="xa" in GBRA.belongs_configurations)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply (metis)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(simp add: Lin2BraDer_def derivation_map_def)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinStep (Lin2BraConf c) e2 (Lin2BraConf c2)) (Bra2LinDer' G (Lin2BraDer dh) n (Suc xa))) (lin_get_scheduler ca)"
+      and t=" lin_extend_scheduler (Bra2LinStep (Lin2BraConf c) e2 (Lin2BraConf c2)) (lin_extend_scheduler (Bra2LinDer' G (Lin2BraDer dh) n (Suc xa)) (lin_get_scheduler ca) )"
+      in ssubst)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+      apply(rename_tac x xa ec c e2 c2)(*strict*)
+      apply(force)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply(rule AX_Bra2LinStep_closed)
+       apply(rename_tac x xa ec c e2 c2)(*strict*)
+       apply(force)
+      apply(rename_tac x xa ec c e2 c2)(*strict*)
+      apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs AX_Lin2BraConf_preserves_configurations)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply(rule AX_Lin2BraConf_preserves_steps)
+       apply(rename_tac x xa ec c e2 c2)(*strict*)
+       apply(force)
+      apply(rename_tac x xa ec c e2 c2)(*strict*)
+      apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply(force)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply (metis Bra2LinDer_prime_closed GBRA.derivation_initial_belongs GBRA.derivation_initial_is_derivation maximum_of_domain_def GLIN.derivation_initial_is_derivation Lin2BraConf_preserves_maximum_of_domain Suc_diff_le diff_Suc_Suc diff_diff_cancel diff_le_self)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs GLIN.AX_get_scheduler_closed)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(rule sym)
+  apply(rule_tac
+      t="lin_extend_scheduler (Bra2LinStep (Lin2BraConf c) e2 (Lin2BraConf c2)) (lin_extend_scheduler (Bra2LinDer' G (Lin2BraDer dh) n (Suc xa)) (lin_get_scheduler ca))"
+      and s="lin_get_scheduler c"
+      in ssubst)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   prefer 2
+   apply(rule sym)
+   apply(rule AX_Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply(force)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (Bra2LinDer' G (Lin2BraDer dh) n (Suc xa)) (lin_get_scheduler ca)"
+      and s="lin_get_scheduler c2"
+      in ssubst)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(rule Bra2LinConf_Lin2BraConf_idemp_on_get_scheduler)
+      apply(rename_tac x xa ec c e2 c2)(*strict*)
+      apply(force)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_closed)
+      apply(rename_tac x xa ec c e2 c2)(*strict*)
+      apply(force)
+     apply(rename_tac x xa ec c e2 c2)(*strict*)
+     apply (metis Bra2LinDer_prime_closed GBRA.derivation_initial_belongs GBRA.derivation_initial_is_derivation maximum_of_domain_def GLIN.derivation_initial_is_derivation Lin2BraConf_preserves_maximum_of_domain Suc_diff_le diff_Suc_Suc diff_diff_cancel diff_le_self)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs GLIN.AX_get_scheduler_closed)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply(force)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(rule proper_removal_of_scheduler_parts)
+    apply(rename_tac x xa ec c e2 c2)(*strict*)
+    apply(force)
+   apply(rename_tac x xa ec c e2 c2)(*strict*)
+   apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+  apply(rename_tac x xa ec c e2 c2)(*strict*)
+  apply(force)
+  done
+
+theorem bfbra_to_bflin_rest: "
+  TSstructure G
+  \<Longrightarrow> GBRA.Nonblockingness_branching_restricted G
+  \<Longrightarrow> GLIN.Nonblockingness_linear_restricted G"
+  apply(simp add: GBRA.Nonblockingness_branching_restricted_def GLIN.Nonblockingness_linear_restricted_def)
+  apply(clarsimp)
+  apply(rename_tac dh n)(*strict*)
+  apply(erule_tac
+      x="Lin2BraDer dh"
+      in allE)
+  apply(erule_tac
+      x="n"
+      in allE)
+  apply(subgoal_tac "ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer dh) \<and> maximum_of_domain (Lin2BraDer dh) n")
+   apply(rename_tac dh n)(*strict*)
+   prefer 2
+   apply(rule conjI)
+    apply(rename_tac dh n)(*strict*)
+    apply(rule Lin2BraConf_preserves_initiality_lift)
+     apply(rename_tac dh n)(*strict*)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(force)
+   apply(rename_tac dh n)(*strict*)
+   apply(rule Lin2BraConf_preserves_maximum_of_domain)
+     apply(rename_tac dh n)(*strict*)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(simp add: GLIN.derivation_initial_def)
+   apply(rename_tac dh n)(*strict*)
+   apply(force)
+  apply(rename_tac dh n)(*strict*)
+  apply(clarsimp)
+  apply(erule impE)
+   apply(rename_tac dh n)(*strict*)
+   apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+    apply(rename_tac dh n)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(simp add: GLIN.get_unfixed_scheduler_nth_def)
+    apply(simp add: get_configuration_def)
+    apply(subgoal_tac "\<exists>e c. Lin2BraDer dh n = Some (pair e c)")
+     apply(rename_tac dh n e c)(*strict*)
+     apply(clarsimp)
+     apply(rename_tac dh n e c ea ca)(*strict*)
+     apply(subgoal_tac "c \<in> lin_configurations G")
+      apply(rename_tac dh n e c ea ca)(*strict*)
+      prefer 2
+      apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+     apply(rename_tac dh n e c ea ca)(*strict*)
+     apply(simp add: Lin2BraDer_def derivation_map_def)
+     apply(clarsimp)
+     apply(rename_tac dh n c ea)(*strict*)
+     apply(subgoal_tac "lin_fixed_scheduler_extendable G (lin_get_fixed_scheduler c)")
+      apply(rename_tac dh n c ea)(*strict*)
+      apply(rule_tac
+      t="bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler (Lin2BraConf c))"
+      and s="lin_fixed_scheduler_extendable G (lin_get_fixed_scheduler c)"
+      in ssubst)
+       apply(rename_tac dh n c ea)(*strict*)
+       apply(rule AX_Lin2BraConf_preserves_fixed_scheduler_extendable)
+        apply(rename_tac dh n c ea)(*strict*)
+        apply(force)
+       apply(rename_tac dh n c ea)(*strict*)
+       apply(force)
+      apply(rename_tac dh n c ea)(*strict*)
+      apply(force)
+     apply(rename_tac dh n c ea)(*strict*)
+     apply (metis GLIN.AX_unfixed_scheduler_extendable_vs_fixed_scheduler_extendable)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n)(*strict*)
+   apply(rule GLIN.some_position_has_details_before_max_dom)
+     apply(rename_tac dh n)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(force)
+   apply(rename_tac dh n)(*strict*)
+   apply(force)
+  apply(rename_tac dh n)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc n')(*strict*)
+  apply(rename_tac x)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(rule_tac
+      x="Bra2LinDer G dc x"
+      in exI)
+  apply(rule context_conjI)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule Bra2LinDer_preserves_derivation)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(simp add: maximum_of_domain_def)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(subgoal_tac "maximum_of_domain (Bra2LinDer G dc x) x")
+   apply(rename_tac dh n dc x)(*strict*)
+   prefer 2
+   apply(rule Bra2LinDer_preserves_maximum_of_domain)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(simp add: maximum_of_domain_def)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule Bra2LinDer_preserves_belongs)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(simp add: maximum_of_domain_def)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(simp add: derivation_append_fit_def)
+   apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+    apply(rename_tac dh n dc x)(*strict*)
+    prefer 2
+    apply(rule GLIN.some_position_has_details_before_max_dom)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(simp add: GLIN.derivation_initial_def)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+    apply(rename_tac dh n dc x)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_at_0)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n dc x e c ca)(*strict*)
+   apply(subgoal_tac "\<exists>c. Bra2LinDer G dc x 0 = Some (pair None c)")
+    apply(rename_tac dh n dc x e c ca)(*strict*)
+    prefer 2
+    apply(rule Bra2LinDer_preserves_step_labels)
+        apply(rename_tac dh n dc x e c ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc x e c ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x e c ca)(*strict*)
+      apply(simp add: maximum_of_domain_def)
+     apply(rename_tac dh n dc x e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e c ca)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n dc x e c ca cb)(*strict*)
+   apply(simp add: GLIN.map_unfixed_scheduler_def GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+   apply(subgoal_tac "ca \<in> lin_configurations G")
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    prefer 2
+    apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(rule GLIN.derivation_initial_belongs)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e c ca cb)(*strict*)
+   apply(simp add: GLIN.replace_unfixed_scheduler_def GLIN.map_unfixed_scheduler_def GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+   apply(rule_tac
+      t="lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler ca) (lin_get_unfixed_scheduler ca)"
+      and s="Some (lin_empty_scheduler_fragment G)"
+      in ssubst)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(rule GLIN.AX_unfixed_scheduler_right_quotient_all)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e c ca cb)(*strict*)
+   apply(subgoal_tac "\<exists>e c. dc x = Some (pair e c)")
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_before_max_dom)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e c ca cb)(*strict*)
+   apply(erule exE)+
+   apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+   apply(clarsimp)
+   apply(subgoal_tac "cb \<in> lin_configurations G \<and> (\<exists>sE \<in> lin_scheduler_fragments G. cb = Bra2LinConf SScm (lin_extend_scheduler sE (Bra2LinFin G (bra_get_fixed_scheduler SScn))))" for SScm SScn)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    prefer 2
+    apply(rule Bra2LinDer_preserves_configurations)
+          apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+          apply(force)
+         apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+       prefer 4
+       apply(force)
+      apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+   apply(rule_tac
+      t="lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler cb)"
+      and s="lin_get_unfixed_scheduler cb"
+      in ssubst)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(rule GLIN.AX_extend_unfixed_scheduler_left_neutral)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+   apply(subgoal_tac "Lin2BraConf ca = c")
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    prefer 2
+    apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n dc x e ca ea cc sE)(*strict*)
+   apply(rule AX_Bra2LinConf_only_modifies_lin_unfixed_scheduler)
+    apply(rename_tac dh n dc x e ca ea cc sE)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e ca ea cc sE)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(simp add: GLIN.replace_unfixed_scheduler_def)
+  apply(rule_tac
+      t="(derivation_append (GLIN.map_unfixed_scheduler dh (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth dh n))) (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dc x) 0))) (Bra2LinDer G dc x) n)"
+      and s="Bra2LinDer G (derivation_append (Lin2BraDer dh) dc n) (n+x)"
+      in ssubst)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule distrib_derivation_append_Bra2LinDer)
+              apply(rename_tac dh n dc x)(*strict*)
+              apply(force)+
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(rule AX_Bra2LinDer_preserves_marking_condition)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(rule GBRA.derivation_append_preserves_derivation_initial)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(rule GBRA.derivation_concat2)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(rule Lin2BraConf_preserves_steps_lift)
+         apply(rename_tac dh n dc x)(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc x)(*strict*)
+        apply(simp add: GLIN.derivation_initial_def)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(rule GLIN.derivation_initial_belongs)
+        apply(rename_tac dh n dc x)(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_fit_def derivation_append_def)
+    apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+     apply(rename_tac dh n dc x)(*strict*)
+     prefer 2
+     apply(rule GLIN.some_position_has_details_before_max_dom)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(simp add: GLIN.derivation_initial_def)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n dc x e c)(*strict*)
+    apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+     apply(rename_tac dh n dc x e c)(*strict*)
+     prefer 2
+     apply(rule GBRA.some_position_has_details_at_0)
+     apply(force)
+    apply(rename_tac dh n dc x e c)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(rule concat_has_max_dom)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(force)
+  done
+
+lemma bflin_to_bfbra_hlp_isDerivation: "
+  TSstructure G
+  \<Longrightarrow> ATS.derivation_initial bra_initial_configurations bra_step_relation G dh
+  \<Longrightarrow> maximum_of_domain dh n
+  \<Longrightarrow> dh n = Some (pair e c)
+  \<Longrightarrow> ATS.derivation_initial lin_initial_configurations lin_step_relation G (Bra2LinDer G dh n)
+  \<Longrightarrow> maximum_of_domain (Bra2LinDer G dh n) n
+  \<Longrightarrow> ATS.derivation lin_step_relation G dc
+  \<Longrightarrow> ATS.belongs lin_configurations step_labels G dc
+  \<Longrightarrow> maximum_of_domain dc x
+  \<Longrightarrow> ATS.derivation bra_step_relation G (Lin2BraDer dc)
+  \<Longrightarrow> ATS.belongs bra_configurations step_labels G (Lin2BraDer dc)
+  \<Longrightarrow> maximum_of_domain (Lin2BraDer dc) x
+  \<Longrightarrow> dh 0 = Some (pair None ca)
+  \<Longrightarrow> derivation_append_fit (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n
+  \<Longrightarrow> derivation_append_fit dh (Lin2BraDer dc) n
+  \<Longrightarrow> \<exists>c. dc 0 = Some (pair None c)
+  \<Longrightarrow> case i of
+          0 \<Rightarrow> case_option False (case_derivation_configuration (\<lambda>a c. case a of None \<Rightarrow> True | Some e \<Rightarrow> False))
+               (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n)
+                 (\<lambda>c. lin_extend_unfixed_scheduler
+                       (the (lin_unfixed_scheduler_right_quotient c
+                              (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n)))
+                       (GLIN.get_unfixed_scheduler_nth dc 0))
+                 0)
+          | Suc i' \<Rightarrow>
+              case_option True
+               (case_derivation_configuration
+                 (\<lambda>i1 i2. case_option False
+                           (case_derivation_configuration
+                             (\<lambda>i'1 i'2. case i1 of None \<Rightarrow> False | Some i1v \<Rightarrow> lin_step_relation G i'2 i1v i2))
+                           (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n)
+                             (\<lambda>c. lin_extend_unfixed_scheduler
+                                   (the (lin_unfixed_scheduler_right_quotient c
+                                          (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n)))
+                                   (GLIN.get_unfixed_scheduler_nth dc 0))
+                             i')))
+               (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n)
+                 (\<lambda>c. lin_extend_unfixed_scheduler
+                       (the (lin_unfixed_scheduler_right_quotient c
+                              (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n)))
+                       (GLIN.get_unfixed_scheduler_nth dc 0))
+                 i)"
+  apply(case_tac "n<i")
+   apply(case_tac i)
+    apply(clarsimp)
+   apply(rename_tac nat)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac nat cb)(*strict*)
+   apply(simp add: GLIN.map_unfixed_scheduler_def Bra2LinDer_def)
+  apply(subgoal_tac "\<exists>b. dc 0 = Some (pair None b) \<and> b = lin_set_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c)))) (lin_get_unfixed_scheduler b)")
+   prefer 2
+   apply(simp add: derivation_append_fit_def)
+   apply(simp add: GLIN.map_unfixed_scheduler_def Bra2LinDer_def)
+   apply(clarsimp)
+   apply(simp add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+   apply(case_tac "dc 0")
+    apply(clarsimp)
+   apply(rename_tac a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac b)(*strict*)
+   apply(subgoal_tac "lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))) (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))))) (lin_get_unfixed_scheduler b) = lin_get_unfixed_scheduler b")
+    apply(rename_tac b)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac b)(*strict*)
+   apply(rule_tac
+      t="lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))) (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c)))))"
+      and s="Some(lin_empty_scheduler_fragment G)"
+      in ssubst)
+    apply(rename_tac b)(*strict*)
+    apply(rule GLIN.AX_unfixed_scheduler_right_quotient_all)
+     apply(rename_tac b)(*strict*)
+     apply(force)
+    apply(rename_tac b)(*strict*)
+    prefer 2
+    apply(clarsimp)
+    apply (metis GLIN.belongs_configurations GLIN.AX_extend_unfixed_scheduler_left_neutral GLIN.AX_get_unfixed_scheduler_closed)
+   apply(rename_tac b)(*strict*)
+   apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+    apply(rename_tac b)(*strict*)
+    apply(force)
+   apply(rename_tac b)(*strict*)
+   apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+    apply(rename_tac b)(*strict*)
+    apply (metis Bra2LinDer_prime_empty)
+   apply(rename_tac b)(*strict*)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler c))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler c)"
+      in ssubst)
+    apply(rename_tac b)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_left_neutral)
+     apply(rename_tac b)(*strict*)
+     apply(force)
+    apply(rename_tac b)(*strict*)
+    apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+   apply(rename_tac b)(*strict*)
+   apply (metis AX_Bra2LinFin_creates_proper_extension GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+  apply(clarsimp)
+  apply(rename_tac cb)(*strict*)
+  apply(thin_tac "derivation_append_fit (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n")
+  apply(rename_tac cb)(*strict*)
+  apply(case_tac i)
+   apply(rename_tac cb)(*strict*)
+   apply(clarsimp)
+   apply(simp add: GLIN.map_unfixed_scheduler_def)
+   apply(simp add: Bra2LinDer_def)
+  apply(rename_tac cb nat)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e1 e2 c1 c2. dh nat = Some (pair e1 c1) \<and> dh (Suc nat) = Some (pair (Some e2) c2) \<and> bra_step_relation G c1 e2 c2")
+   apply(rename_tac cb nat)(*strict*)
+   prefer 2
+   apply(rule_tac
+      m="n"
+      in GBRA.step_detail_before_some_position)
+     apply(rename_tac cb nat)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rename_tac cb nat)(*strict*)
+    apply(force)
+   apply(rename_tac cb nat)(*strict*)
+   apply(force)
+  apply(rename_tac cb nat)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+  apply(simp (no_asm_simp) add: get_configuration_def GLIN.get_unfixed_scheduler_nth_def GLIN.map_unfixed_scheduler_def Bra2LinDer_def)
+  apply(simp add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+  apply(subgoal_tac "Bra2LinDer' G dh n nat = lin_join_scheduler_fragments (Bra2LinStep c1 e2 c2) (Bra2LinDer' G dh n (Suc nat))")
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   prefer 2
+   apply(rule Bra2LinDer_prime_pullout_head)
+          apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+          apply(force)
+         apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+         apply(simp add: GBRA.derivation_initial_def)
+        apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+        apply(rule GBRA.derivation_initial_belongs)
+         apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+        apply(force)
+       apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+       apply(force)
+      apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+    apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   apply (metis Bra2LinDer_prime_empty)
+  apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler c))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler c)"
+      in ssubst)
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_left_neutral)
+    apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+  apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+  apply(subgoal_tac "c = Lin2BraConf cb")
+   apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+   prefer 2
+   apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+  apply(rename_tac cb nat e1 e2 c1 c2)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(rule_tac
+      t="lin_join_scheduler_fragments (Bra2LinStep c1 e2 c2) (Bra2LinDer' G dh n (Suc nat))"
+      and s="Bra2LinDer' G dh n nat"
+      in ssubst)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(rule_tac
+      t="(lin_set_unfixed_scheduler (Bra2LinConf c1 (lin_extend_scheduler (Bra2LinDer' G dh n nat) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))))) (lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf c1 (lin_extend_scheduler (Bra2LinDer' G dh n nat) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))))) (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))))))) (lin_get_unfixed_scheduler c)))"
+      and s=" (Bra2LinConf c1 (lin_extend_scheduler (Bra2LinDer' G dh n nat) (lin_get_scheduler c)))"
+      in ssubst)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule AX_lin_unfixed_scheduler_right_quotient_drop_proper)
+          apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+          prefer 7
+          apply(force)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         prefer 7
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(force)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(rule GLIN.belongs_configurations)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(force)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(force)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(rule Bra2LinDer_prime_closed)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(clarsimp)
+   apply(subgoal_tac "bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1)")
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule_tac
+      d="dh"
+      in GBRA.fixed_scheduler_extendable_translates_backwards_lift)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply (metis GBRA.derivation_initial_belongs)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(force)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(rule_tac
+      t="(lin_set_unfixed_scheduler (Bra2LinConf c2 (lin_extend_scheduler (Bra2LinDer' G dh n (Suc nat)) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))))) (lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf c2 (lin_extend_scheduler (Bra2LinDer' G dh n (Suc nat)) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c)))))) (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf c) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf c))))))) (lin_get_unfixed_scheduler c)))"
+      and s=" (Bra2LinConf c2 (lin_extend_scheduler (Bra2LinDer' G dh n (Suc nat)) (lin_get_scheduler c)))"
+      in ssubst)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule AX_lin_unfixed_scheduler_right_quotient_drop_proper)
+          apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+          prefer 7
+          apply(force)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         prefer 7
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(force)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(rule GLIN.belongs_configurations)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(force)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(force)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(rule Bra2LinDer_prime_closed)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(clarsimp)
+   apply(subgoal_tac "bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c2)")
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule_tac
+      d="dh"
+      in GBRA.fixed_scheduler_extendable_translates_backwards_lift)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply (metis GBRA.derivation_initial_belongs)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(force)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(clarsimp)
+  apply(rule_tac
+      t="lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinStep c1 e2 c2) (Bra2LinDer' G dh n (Suc nat))) (lin_get_scheduler c)"
+      and s="lin_extend_scheduler (Bra2LinStep c1 e2 c2) (lin_extend_scheduler (Bra2LinDer' G dh n (Suc nat)) (lin_get_scheduler c))"
+      in ssubst)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   prefer 2
+   apply(rule AX_lin_step_relation_from_Bra2LinStep)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime_prime)
+         apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+         apply(force)
+        apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule_tac
+      d="dc"
+      in GLIN.belongs_configurations)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply(force)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(rule AX_Bra2LinStep_closed)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(force)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(rule Bra2LinDer_prime_closed)
+       apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+       apply(force)
+      apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+     apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+     apply (metis GBRA.derivation_initial_belongs)
+    apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+    apply(force)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(rule GLIN.AX_get_scheduler_closed)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(rule_tac
+      d="dc"
+      in GLIN.belongs_configurations)
+   apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+   apply(force)
+  apply(rename_tac c nat e1 e2 c1 c2)(*strict*)
+  apply(force)
+  done
+
+theorem bflin_to_bfbra_rest: "
+  TSstructure G
+  \<Longrightarrow> GLIN.Nonblockingness_linear_restricted G
+  \<Longrightarrow> GBRA.Nonblockingness_branching_restricted G"
+  apply(simp add: GLIN.Nonblockingness_linear_restricted_def GBRA.Nonblockingness_branching_restricted_def)
+  apply(clarsimp)
+  apply(rename_tac dh n)(*strict*)
+  apply(erule_tac
+      x="Bra2LinDer G dh n"
+      in allE)
+  apply(erule_tac
+      x="n"
+      in allE)
+  apply(subgoal_tac "\<exists>e c. dh n= Some (pair e c)")
+   apply(rename_tac dh n)(*strict*)
+   prefer 2
+   apply(rule_tac
+      g="dh"
+      in GBRA.pre_notnone_position_is_some_position)
+     apply(rename_tac dh n)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+    apply(force)
+   apply(rename_tac dh n)(*strict*)
+   apply(force)
+  apply(rename_tac dh n)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(subgoal_tac "ATS.derivation_initial lin_initial_configurations lin_step_relation G (Bra2LinDer G dh n)")
+   apply(rename_tac dh n e c)(*strict*)
+   prefer 2
+   apply(simp add: GLIN.derivation_initial_def)
+   apply(rule conjI)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(rule Bra2LinDer_preserves_derivation)
+       apply(rename_tac dh n e c)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+     apply(rename_tac dh n e c)(*strict*)
+     apply(rule GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e c)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(subgoal_tac "\<exists>c. dh 0= Some (pair None c)")
+    apply(rename_tac dh n e c)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_at_0)
+    apply(simp add: GBRA.derivation_initial_def)
+    apply(force)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c ca)(*strict*)
+   apply(simp add: Bra2LinDer_def)
+   apply(rule AX_Bra2LinConf_preserves_initiality)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_closed)
+      apply(rename_tac dh n e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(rule Bra2LinDer_prime_closed)
+         apply(rename_tac dh n e c ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c ca)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac dh n e c ca)(*strict*)
+       apply(rule GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e c ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(rule AX_Bra2LinFin_closed)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(rule GBRA.belongs_configurations)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(rule GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c ca)(*strict*)
+   apply(simp add: GBRA.derivation_initial_def)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(subgoal_tac "maximum_of_domain (Bra2LinDer G dh n) n")
+   apply(rename_tac dh n e c)(*strict*)
+   prefer 2
+   apply(simp add: maximum_of_domain_def Bra2LinDer_def)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(clarsimp)
+  apply(erule impE)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+    apply(rename_tac dh n e c)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_before_max_dom)
+      apply(rename_tac dh n e c)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+      apply(force)
+     apply(rename_tac dh n e c)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(clarsimp)
+   apply(simp add: GLIN.get_unfixed_scheduler_nth_def)
+   apply(simp add: get_configuration_def)
+   apply(subgoal_tac "\<exists>e c. Bra2LinDer G dh n n = Some (pair e c)")
+    apply(rename_tac dh n e c)(*strict*)
+    prefer 2
+    apply(simp add: Bra2LinDer_def)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c ea ca)(*strict*)
+   apply(subgoal_tac "c \<in> bra_configurations G")
+    apply(rename_tac dh n e c ea ca)(*strict*)
+    prefer 2
+    apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+   apply(rename_tac dh n e c ea ca)(*strict*)
+   apply(simp add: Bra2LinDer_def)
+   apply(clarsimp)
+   apply(rename_tac dh n c ea)(*strict*)
+   apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+    apply(rename_tac dh n c ea)(*strict*)
+    apply(rule Bra2LinDer_prime_empty)
+   apply(rename_tac dh n c ea)(*strict*)
+   apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler c))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler c)"
+      in ssubst)
+    apply(rename_tac dh n c ea)(*strict*)
+    apply (metis AX_Bra2LinFin_closed GLIN.AX_extend_scheduler_left_neutral)
+   apply(rename_tac dh n c ea)(*strict*)
+   apply(fold Bra2LinDer_def)
+   apply (metis AX_Bra2LinFin_closed AX_Bra2LinFin_creates_proper_extension AX_Lin2BraConf_Bra2LinConf_idemp AX_Lin2BraConf_preserves_fixed_scheduler_extendable GLIN.AX_unfixed_scheduler_extendable_vs_fixed_scheduler_extendable)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule_tac
+      x="Lin2BraDer dc"
+      in exI)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule Lin2BraConf_preserves_steps_lift)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule Lin2BraDer_preserves_belongs)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule_tac
+      x="x"
+      in exI)
+   apply(simp add: Lin2BraDer_def)
+   apply(simp add: derivation_map_def)
+   apply(simp add: maximum_of_domain_def)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x y ya)(*strict*)
+   apply(case_tac ya)
+   apply(rename_tac dh n e c dc x y ya option b)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x n')(*strict*)
+  apply(subgoal_tac "n'=x")
+   apply(rename_tac dh n e c dc x n')(*strict*)
+   prefer 2
+   apply(rule GBRA.maximum_of_domainUnique)
+     apply(rename_tac dh n e c dc x n')(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x n')(*strict*)
+    apply(simp add: Lin2BraDer_def)
+    apply(simp add: derivation_map_def)
+    apply(simp add: maximum_of_domain_def)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x n' y ya yb)(*strict*)
+    apply(case_tac ya)
+    apply(rename_tac dh n e c dc x n' y ya yb option b)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x n')(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x n')(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(subgoal_tac "\<exists>c. dc 0= Some (pair None c)")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(rule GLIN.some_position_has_details_at_0)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(subgoal_tac "\<exists>c. (Lin2BraDer dc) 0= Some (pair None c)")
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    prefer 2
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca cb)(*strict*)
+   apply(simp add: derivation_append_fit_def)
+   apply(simp add: GLIN.replace_unfixed_scheduler_def)
+   apply(simp add: get_configuration_def GLIN.get_unfixed_scheduler_nth_def derivation_append_fit_def GLIN.map_unfixed_scheduler_def Lin2BraDer_def derivation_map_def Bra2LinDer_def)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(subgoal_tac "lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))) (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))) = Some (lin_empty_scheduler_fragment G)")
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(clarsimp)
+    apply(subgoal_tac "Bra2LinDer' G dh n n = lin_empty_scheduler_fragment G")
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(clarsimp)
+     apply(subgoal_tac "lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler ca) = lin_get_unfixed_scheduler ca")
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(clarsimp)
+      apply(subgoal_tac "lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler c)) = Bra2LinFin G (bra_get_fixed_scheduler c)")
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(clarsimp)
+       apply(rule AX_equal_by_fixed_unfixed_and_nonscheduler_part)
+          apply(rename_tac dh n e c dc x ca)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+          apply(rename_tac dh n e c dc x ca)(*strict*)
+          apply(rule GBRA.derivation_initial_belongs)
+           apply(rename_tac dh n e c dc x ca)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e c dc x ca)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(rule GLIN.belongs_configurations)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule GLIN.AX_extend_scheduler_left_neutral)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule AX_Bra2LinFin_closed)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(rule GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(rule GLIN.AX_extend_unfixed_scheduler_left_neutral)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(rule GLIN.belongs_configurations)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply (metis Bra2LinDer_prime_empty)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(rule GLIN.AX_unfixed_scheduler_right_quotient_all)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(simp add: GBRA.derivation_initial_def)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule GBRA.derivation_initial_belongs)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(subgoal_tac "maximum_of_domain (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n) (n + x)")
+   apply(rename_tac dh n e c dc x)(*strict*)
+   prefer 2
+   apply(rule concat_has_max_dom)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x y ya)(*strict*)
+    apply(rule conjI)
+     apply(rename_tac dh n e c dc x y ya)(*strict*)
+     apply(simp add: GLIN.map_unfixed_scheduler_def)
+     apply(case_tac y)
+     apply(rename_tac dh n e c dc x y ya option b)(*strict*)
+     apply(clarsimp)
+     apply(rename_tac dha dh n e c dc x ya option b)(*strict*)
+     apply(case_tac x)
+     apply(rename_tac dha dh n e c dc x ya option b optiona conf)(*strict*)
+     apply(clarsimp)
+    apply(rename_tac dh n e c dc x y ya)(*strict*)
+    apply(simp add: GLIN.map_unfixed_scheduler_def)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(simp add: GLIN.replace_unfixed_scheduler_def)
+  apply(subgoal_tac "ATS.derivation_initial lin_initial_configurations lin_step_relation G (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n)")
+   apply(rename_tac dh n e c dc x)(*strict*)
+   prefer 2
+   apply(thin_tac "lin_marking_condition G (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n)")
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(subgoal_tac "\<exists>c. dh 0= Some (pair None c)")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_at_0)
+    apply(simp add: GBRA.derivation_initial_def)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(subgoal_tac "\<exists>c. dc 0= Some (pair None c)")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(rule GLIN.some_position_has_details_at_0)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(subgoal_tac "ATS.derivation_initial lin_initial_configurations lin_step_relation G (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)))")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(subgoal_tac "ATS.derivation lin_step_relation G (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)))")
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(simp (no_asm) only: GLIN.derivation_def)
+     apply(rule allI)
+     apply(rename_tac dh n e c dc x i)(*strict*)
+     apply(erule exE)+
+     apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+     apply(rule bflin_to_bfbra_hlp_isDerivation)
+                    apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                    apply(force)
+                   apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                   apply(force)
+                  apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                  apply(force)
+                 apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                 apply(force)
+                apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                apply(force)
+               apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+               apply(force)
+              apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+              apply(force)
+             apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+             apply(force)
+            apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+            apply(force)
+           apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(simp add: GLIN.derivation_initial_def)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x ca cb)(*strict*)
+    apply(thin_tac "ATS.derivation lin_step_relation G (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)))")
+    apply(rename_tac dh n e c dc x ca cb)(*strict*)
+    apply(simp (no_asm) add: GLIN.map_unfixed_scheduler_def)
+    apply(simp (no_asm) add: Bra2LinDer_def)
+    apply(clarsimp)
+    apply(simp (no_asm) add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+    apply(clarsimp)
+    apply(subgoal_tac "c = Lin2BraConf cb")
+     apply(rename_tac dh n e c dc x ca cb)(*strict*)
+     prefer 2
+     apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+    apply(rename_tac dh n e c dc x ca cb)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n e dc x ca cb)(*strict*)
+    apply(simp (no_asm) add: Bra2LinDer_def)
+    apply(rule_tac
+      t="lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))"
+      in ssubst)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply (metis Bra2LinDer_prime_empty)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule GLIN.AX_extend_scheduler_left_neutral)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule AX_Bra2LinFin_closed)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply (metis GBRA.derivation_initial_belongs)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e dc x ca cb)(*strict*)
+    apply(clarsimp)
+    apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply (metis Bra2LinDer_prime_empty)
+    apply(rename_tac dh n e dc x ca cb)(*strict*)
+    apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))"
+      in ssubst)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule GLIN.AX_extend_scheduler_left_neutral)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule AX_Bra2LinFin_closed)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply (metis GBRA.derivation_initial_belongs)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e dc x ca cb)(*strict*)
+    apply(rule_tac
+      t="lin_set_unfixed_scheduler (Bra2LinConf ca (lin_extend_scheduler (Bra2LinDer' G dh n 0) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))))) (lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf ca (lin_extend_scheduler (Bra2LinDer' G dh n 0) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb)))))) (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf cb) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))))))) (lin_get_unfixed_scheduler cb))"
+      and s="Bra2LinConf ca (lin_extend_scheduler SSsE (lin_get_scheduler SScL))" for SSsE SScL
+      in ssubst)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule AX_lin_unfixed_scheduler_right_quotient_drop_proper)
+            apply(rename_tac dh n e dc x ca cb)(*strict*)
+            prefer 7
+            apply(force)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           prefer 7
+           apply(force)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply (metis GLIN.belongs_configurations)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(rule Bra2LinDer_prime_closed)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(simp add: GBRA.derivation_initial_def)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply (metis GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(simp add: GBRA.derivation_initial_def)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply (metis GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(clarsimp)
+     apply(subgoal_tac "bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler ca)")
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule_tac
+      d="dh"
+      in GBRA.fixed_scheduler_extendable_translates_backwards_lift)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(simp add: GBRA.derivation_initial_def)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply (metis GBRA.derivation_initial_belongs)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e dc x ca cb)(*strict*)
+    apply(rule AX_Bra2LinConf_preserves_initiality)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule GLIN.AX_extend_scheduler_closed)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule Bra2LinDer_prime_closed)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply(simp add: GBRA.derivation_initial_def)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply (metis GBRA.derivation_initial_belongs)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule GLIN.AX_get_scheduler_closed)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply (metis GLIN.belongs_configurations)
+    apply(rename_tac dh n e dc x ca cb)(*strict*)
+    apply(simp add: GBRA.derivation_initial_def)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule GLIN.derivation_append_preserves_derivation_initial)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule GLIN.derivation_concat2)
+      apply(rename_tac dh n e c dc x)(*strict*)
+      apply(simp add: GLIN.derivation_initial_def)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(simp add: GLIN.map_unfixed_scheduler_def)
+     apply(simp add: maximum_of_domain_def)
+     apply(clarsimp)
+     apply(rename_tac dh n e c dc x ca cb y ya yb)(*strict*)
+     apply(case_tac y)
+     apply(rename_tac dh n e c dc x ca cb y ya yb option b)(*strict*)
+     apply(clarsimp)
+     apply(rename_tac dha dh n e c dc x ca cb ya yb option b)(*strict*)
+     apply(case_tac cb)
+     apply(rename_tac dh n e c dc x ca cb y ya yb option b)(*strict*)
+     apply(clarsimp)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(simp add: derivation_append_fit_def)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca cb)(*strict*)
+   apply(case_tac "GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)) n")
+    apply(rename_tac dh n e c dc x ca cb)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca cb a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac dh n e c dc x ca cb a option b)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule_tac
+      t="derivation_append dh (Lin2BraDer dc) n"
+      and s="Lin2BraDer ((derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n))"
+      in ssubst)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   defer
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule_tac
+      n="n+x"
+      in AX_Lin2BraDer_preserves_marking_condition)
+      apply(rename_tac dh n e c dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(thin_tac "lin_marking_condition G (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n)")
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule ext)
+  apply(rename_tac dh n e c dc x xa)(*strict*)
+  apply(case_tac "xa>n+x")
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(case_tac "dc (xa-n) = None")
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(rule_tac
+      d="dc"
+      in GLIN.no_some_beyond_maximum_of_domain)
+      apply(rename_tac dh n e c dc x xa)(*strict*)
+      prefer 3
+      apply(force)
+     apply(rename_tac dh n e c dc x xa)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x xa)(*strict*)
+  apply(subgoal_tac "n+x\<ge>xa")
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac dh n e c dc x xa)(*strict*)
+  apply(clarsimp)
+  apply(case_tac "xa>n")
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+  apply(rename_tac dh n e c dc x xa)(*strict*)
+  apply(subgoal_tac "xa\<le>n")
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac dh n e c dc x xa)(*strict*)
+  apply(clarsimp)
+  apply(simp (no_asm) add: derivation_append_def Lin2BraDer_def derivation_map_def)
+  apply(clarsimp)
+  apply(simp (no_asm) add: GLIN.map_unfixed_scheduler_def)
+  apply(subgoal_tac "\<exists>e c. dh xa = Some (pair e c)")
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_before_max_dom)
+     apply(rename_tac dh n e c dc x xa)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x xa)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x xa ea ca)(*strict*)
+  apply(case_tac "Bra2LinDer G dh n xa")
+   apply(rename_tac dh n e c dc x xa ea ca)(*strict*)
+   apply(clarsimp)
+   apply(simp add: Bra2LinDer_def)
+  apply(rename_tac dh n e c dc x xa ea ca a)(*strict*)
+  apply(clarsimp)
+  apply(case_tac a)
+  apply(rename_tac dh n e c dc x xa ea ca a option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x xa ea ca option b)(*strict*)
+  apply(simp (no_asm) add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+  apply(subgoal_tac "ea = option \<and> Bra2LinConf ca (lin_extend_scheduler (Bra2LinDer' G dh n xa) (Bra2LinFin G (bra_get_fixed_scheduler c))) = b")
+   apply(rename_tac dh n e c dc x xa ea ca option b)(*strict*)
+   prefer 2
+   apply(simp add: Bra2LinDer_def)
+  apply(rename_tac dh n e c dc x xa ea ca option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+  apply(rule AX_Lin2BraConf_ignores_set_unfixed_scheduler)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+  apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+  apply(rule GLIN.AX_extend_scheduler_closed)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(rule Bra2LinDer_prime_closed)
+       apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+     apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+     apply(rule GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+  apply(rule AX_Bra2LinFin_closed)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+  apply(rule GBRA.belongs_configurations)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(rule GBRA.derivation_initial_belongs)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+  apply(force)
+  done
+
+theorem bfbra_to_bflin: "
+  TSstructure G
+  \<Longrightarrow> GBRA.Nonblockingness_branching G
+  \<Longrightarrow> GLIN.Nonblockingness_linear G"
+  apply(simp add: GBRA.Nonblockingness_branching_def GLIN.Nonblockingness_linear_def)
+  apply(clarsimp)
+  apply(rename_tac dh n)(*strict*)
+  apply(erule_tac
+      x="Lin2BraDer dh"
+      in allE)
+  apply(subgoal_tac "ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer dh) \<and> maximum_of_domain (Lin2BraDer dh) n")
+   apply(rename_tac dh n)(*strict*)
+   prefer 2
+   apply(rule conjI)
+    apply(rename_tac dh n)(*strict*)
+    apply(rule Lin2BraConf_preserves_initiality_lift)
+     apply(rename_tac dh n)(*strict*)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(force)
+   apply(rename_tac dh n)(*strict*)
+   apply(rule Lin2BraConf_preserves_maximum_of_domain)
+     apply(rename_tac dh n)(*strict*)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(simp add: GLIN.derivation_initial_def)
+   apply(rename_tac dh n)(*strict*)
+   apply(force)
+  apply(rename_tac dh n)(*strict*)
+  apply(clarsimp)
+  apply(erule_tac
+      x="n"
+      in allE)
+  apply(clarsimp)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(case_tac "lin_unfixed_scheduler_extendable G (ATS_SchedUF_SB.get_unfixed_scheduler_nth lin_get_unfixed_scheduler dh n)")
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule_tac
+      x="Bra2LinDer G dc x"
+      in exI)
+   apply(clarsimp)
+   apply(rule context_conjI)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(rule Bra2LinDer_preserves_derivation)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(subgoal_tac "maximum_of_domain (Bra2LinDer G dc x) x")
+    apply(rename_tac dh n dc x)(*strict*)
+    prefer 2
+    apply(rule Bra2LinDer_preserves_maximum_of_domain)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule context_conjI)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(rule Bra2LinDer_preserves_belongs)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule conjI)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule conjI)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(simp add: derivation_append_fit_def)
+    apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+     apply(rename_tac dh n dc x)(*strict*)
+     prefer 2
+     apply(rule GLIN.some_position_has_details_before_max_dom)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(simp add: GLIN.derivation_initial_def)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+     apply(rename_tac dh n dc x)(*strict*)
+     prefer 2
+     apply(rule GBRA.some_position_has_details_at_0)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n dc x e c ca)(*strict*)
+    apply(subgoal_tac "\<exists>c. Bra2LinDer G dc x 0 = Some (pair None c)")
+     apply(rename_tac dh n dc x e c ca)(*strict*)
+     prefer 2
+     apply(rule Bra2LinDer_preserves_step_labels)
+         apply(rename_tac dh n dc x e c ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc x e c ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc x e c ca)(*strict*)
+       apply(simp add: maximum_of_domain_def)
+      apply(rename_tac dh n dc x e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(simp add: GLIN.replace_unfixed_scheduler_def)
+    apply(simp add: GLIN.map_unfixed_scheduler_def)
+    apply(simp add: GLIN.get_unfixed_scheduler_nth_def)
+    apply(simp add: get_configuration_def)
+    apply(subgoal_tac "ca \<in> lin_configurations G")
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     prefer 2
+     apply(rule_tac
+      d="dh"
+      in GLIN.belongs_configurations)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(rule GLIN.derivation_initial_belongs)
+       apply(rename_tac dh n dc x e c ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(rule_tac
+      t="lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler ca) (lin_get_unfixed_scheduler ca)"
+      and s="Some (lin_empty_scheduler_fragment G)"
+      in ssubst)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(rule GLIN.AX_unfixed_scheduler_right_quotient_all)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(clarsimp)
+    apply(subgoal_tac "\<exists>e c. dc x = Some (pair e c)")
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     prefer 2
+     apply(rule GBRA.some_position_has_details_before_max_dom)
+       apply(rename_tac dh n dc x e c ca cb)(*strict*)
+       apply(simp add: GBRA.derivation_initial_def)
+      apply(rename_tac dh n dc x e c ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb)(*strict*)
+    apply(erule exE)+
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(subgoal_tac "cb \<in> lin_configurations G \<and> (\<exists>sE \<in> lin_scheduler_fragments G. cb = Bra2LinConf SScm (lin_extend_scheduler sE (Bra2LinFin G (bra_get_fixed_scheduler SScn))))" for SScm SScn)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     prefer 2
+     apply(rule Bra2LinDer_preserves_configurations)
+           apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+           apply(force)
+          apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+          apply(force)
+         apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+        prefer 4
+        apply(force)
+       apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(rule_tac
+      t="lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler cb)"
+      and s="lin_get_unfixed_scheduler cb"
+      in ssubst)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(rule GLIN.AX_extend_unfixed_scheduler_left_neutral)
+      apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+      apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(subgoal_tac "Lin2BraConf ca = c")
+     apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+     prefer 2
+     apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+    apply(rename_tac dh n dc x e c ca cb ea cc)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n dc x e ca ea cc sE)(*strict*)
+    apply(rule AX_Bra2LinConf_only_modifies_lin_unfixed_scheduler)
+     apply(rename_tac dh n dc x e ca ea cc sE)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc x e ca ea cc sE)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(simp add: GLIN.replace_unfixed_scheduler_def)
+   apply(rule_tac
+      t="(derivation_append (GLIN.map_unfixed_scheduler dh (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth dh n))) (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dc x) 0))) (Bra2LinDer G dc x) n)"
+      and s="Bra2LinDer G (derivation_append (Lin2BraDer dh) dc n) (n+x)"
+      in ssubst)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(rule distrib_derivation_append_Bra2LinDer)
+               apply(rename_tac dh n dc x)(*strict*)
+               apply(force)+
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule AX_Bra2LinDer_preserves_marking_condition)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(rule GBRA.derivation_append_preserves_derivation_initial)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(rule GBRA.derivation_concat2)
+        apply(rename_tac dh n dc x)(*strict*)
+        apply(rule Lin2BraConf_preserves_steps_lift)
+          apply(rename_tac dh n dc x)(*strict*)
+          apply(force)
+         apply(rename_tac dh n dc x)(*strict*)
+         apply(simp add: GLIN.derivation_initial_def)
+        apply(rename_tac dh n dc x)(*strict*)
+        apply(rule GLIN.derivation_initial_belongs)
+         apply(rename_tac dh n dc x)(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc x)(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_fit_def derivation_append_def)
+     apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+      apply(rename_tac dh n dc x)(*strict*)
+      prefer 2
+      apply(rule GLIN.some_position_has_details_before_max_dom)
+        apply(rename_tac dh n dc x)(*strict*)
+        apply(simp add: GLIN.derivation_initial_def)
+        apply(force)
+       apply(rename_tac dh n dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(clarsimp)
+     apply(rename_tac dh n dc x e c)(*strict*)
+     apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+      apply(rename_tac dh n dc x e c)(*strict*)
+      prefer 2
+      apply(rule GBRA.some_position_has_details_at_0)
+      apply(force)
+     apply(rename_tac dh n dc x e c)(*strict*)
+     apply(clarsimp)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(rule concat_has_max_dom)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. dh n = Some (pair e c)")
+   apply(rename_tac dh n dc x)(*strict*)
+   prefer 2
+   apply(rule GLIN.some_position_has_details_before_max_dom)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(subgoal_tac "\<exists>c. dc 0 = Some (pair None c)")
+   apply(rename_tac dh n dc x)(*strict*)
+   prefer 2
+   apply (metis GBRA.some_position_has_details_at_0)
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(subgoal_tac "\<exists>e c. dc x = Some (pair e c)")
+   apply(rename_tac dh n dc x)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_before_max_dom)
+     apply(rename_tac dh n dc x)(*strict*)
+     apply(force)+
+  apply(rename_tac dh n dc x)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc x e c ea ca cb)(*strict*)
+  apply(subgoal_tac "Lin2BraConf ca = c")
+   apply(rename_tac dh n dc x e c ea ca cb)(*strict*)
+   prefer 2
+   apply(simp add: derivation_append_fit_def)
+   apply(simp add: Lin2BraDer_def Bra2LinDer_def)
+   apply(simp add: derivation_map_def)
+  apply(rename_tac dh n dc x e c ea ca cb)(*strict*)
+  apply(thin_tac "derivation_append_fit (Lin2BraDer dh) dc n")
+  apply(clarsimp)
+  apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+  apply(rule_tac
+      x="Bra2LinDer G dc x"
+      in exI)
+  apply(rule conjI)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply (metis Bra2LinDer_preserves_derivation maximum_of_domain_def)
+  apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply (metis Bra2LinDer_preserves_belongs maximum_of_domain_def)
+  apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply(rule_tac
+      x="x"
+      in exI)
+   apply (metis Bra2LinDer_preserves_maximum_of_domain maximum_of_domain_def)
+  apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply(simp add: derivation_append_fit_def)
+   apply(simp add: Lin2BraDer_def)
+   apply(simp add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+   apply(simp add: Bra2LinDer_def)
+   apply(thin_tac "bra_marking_condition G (derivation_append (derivation_map dh Lin2BraConf) dc n)")
+   apply(rule bfbra_to_bflin_hlp0)
+         apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+         apply(force)+
+    apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+    apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+  apply(rule_tac
+      t="derivation_append dh (Bra2LinDer G dc x) n"
+      and s="Bra2LinDer G (derivation_append (Lin2BraDer dh) dc n) (n+x)"
+      in ssubst)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   defer
+   apply(rule AX_Bra2LinDer_preserves_marking_condition)
+      apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+     apply(rule GBRA.derivation_append_preserves_derivation_initial)
+       apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+     apply(rule GBRA.derivation_concat2)
+        apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+        apply(rule Lin2BraConf_preserves_steps_lift)
+          apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+          apply(force)
+         apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+         apply(simp add: GLIN.derivation_initial_def)
+        apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+        apply(rule GLIN.derivation_initial_belongs)
+         apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+     apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_fit_def derivation_append_def)
+    apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply(subgoal_tac "maximum_of_domain (derivation_append (Lin2BraDer dh) dc n) (n + x)")
+    apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply(rule concat_has_max_dom)
+    apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc x e ea ca cb)(*strict*)
+  apply(rule ext)
+  apply(rename_tac dh n dc x e ea ca cb xa)(*strict*)
+  apply(case_tac x)
+   apply(rename_tac dh n dc x e ea ca cb xa)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n dc e ca xa)(*strict*)
+   apply(rule_tac
+      t="derivation_append dh (Bra2LinDer G dc 0) n"
+      and s="dh"
+      in ssubst)
+    apply(rename_tac dh n dc e ca xa)(*strict*)
+    apply(rule ext)
+    apply(rename_tac dh n dc e ca xa x)(*strict*)
+    apply(simp add: derivation_append_def)
+    apply(rename_tac dh n dc e ca x)(*strict*)
+    apply(clarsimp)
+    apply(simp add: Bra2LinDer_def)
+    apply (metis GLIN.allPreMaxDomSome_prime GLIN.derivation_initial_is_derivation)
+   apply(rename_tac dh n dc e ca xa)(*strict*)
+   apply(rule_tac
+      t="derivation_append (Lin2BraDer dh) dc n"
+      and s="Lin2BraDer dh"
+      in ssubst)
+    apply(rename_tac dh n dc e ca xa)(*strict*)
+    apply(rule ext)
+    apply(rename_tac dh n dc e ca xa x)(*strict*)
+    apply(simp add: derivation_append_def)
+    apply(rename_tac dh n dc e ca x)(*strict*)
+    apply(clarsimp)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+    apply(subgoal_tac "dh x = None")
+     apply(rename_tac dh n dc e ca x)(*strict*)
+     apply(clarsimp)
+     apply(subgoal_tac "x-n>0")
+      apply(rename_tac dh n dc e ca x)(*strict*)
+      prefer 2
+      apply(force)
+     apply(rename_tac dh n dc e ca x)(*strict*)
+     apply(rule GBRA.none_position_after_max_dom)
+       apply(rename_tac dh n dc e ca x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc e ca x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ca x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ca x)(*strict*)
+    apply(rule GLIN.none_position_after_max_dom)
+      apply(rename_tac dh n dc e ca x)(*strict*)
+      apply(rule GLIN.derivation_initial_is_derivation)
+      apply(force)
+     apply(rename_tac dh n dc e ca x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ca x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ca xa)(*strict*)
+   apply(case_tac "xa \<le> n")
+    apply(rename_tac dh n dc e ca xa)(*strict*)
+    apply(rule bfbra_to_bflin_hlp1)
+          apply(rename_tac dh n dc e ca xa)(*strict*)
+          apply(force)+
+         apply(rename_tac dh n dc e ca xa)(*strict*)
+         apply(rule GLIN.derivation_initial_is_derivation)
+         apply(force)
+        apply(rename_tac dh n dc e ca xa)(*strict*)
+        apply (metis GLIN.derivation_initial_belongs)
+       apply(rename_tac dh n dc e ca xa)(*strict*)
+       apply(force)+
+    apply(rename_tac dh n dc e ca xa)(*strict*)
+    apply(simp add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+    apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs GLIN.AX_unfixed_scheduler_extendable_vs_fixed_scheduler_extendable)
+   apply(rename_tac dh n dc e ca xa)(*strict*)
+   apply(rule_tac
+      t="dh xa"
+      and s="None"
+      in ssubst)
+    apply(rename_tac dh n dc e ca xa)(*strict*)
+    apply (metis GLIN.allPreMaxDomSome_prime GLIN.derivation_initial_is_derivation)
+   apply(rename_tac dh n dc e ca xa)(*strict*)
+   apply(simp add: Bra2LinDer_def Lin2BraDer_def)
+  apply(rename_tac dh n dc x e ea ca cb xa nat)(*strict*)
+  apply(case_tac "xa > n+x")
+   apply(rename_tac dh n dc x e ea ca cb xa nat)(*strict*)
+   apply(simp add: derivation_append_def Bra2LinDer_def)
+  apply(rename_tac dh n dc x e ea ca cb xa nat)(*strict*)
+  apply(subgoal_tac "xa \<le> n+x")
+   apply(rename_tac dh n dc x e ea ca cb xa nat)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac dh n dc x e ea ca cb xa nat)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+  apply(case_tac "n<xa")
+   apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+   apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+   apply(rule context_conjI)
+    apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+   apply(clarsimp)
+   apply(subgoal_tac "\<exists>e c. dc (xa-n) = Some (pair e c)")
+    apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_before_max_dom)
+      apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+   apply(rule_tac
+      t="(\<lambda>x. if x \<le> n then case_option None (case_derivation_configuration (\<lambda>e c. Some (pair e (Lin2BraConf c)))) (dh x) else dc (x - n))"
+      and s="derivation_append (Lin2BraDer dh) dc n"
+      in ssubst)
+    apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+    apply(rule ext)
+    apply(rename_tac dh n dc e ea ca cb xa nat eb c x)(*strict*)
+    apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+   apply(fold derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+   apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (Suc(n+nat)) xa"
+      and s="Bra2LinDer' G dc (Suc nat) (xa - n)"
+      in ssubst)
+    apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+   apply(rule_tac m="(Suc nat)-(xa-n)" in Bra2LinDer_prime_derivation_append_drop_Ext)
+       apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+       apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+      apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+  apply(subgoal_tac "xa\<le>n")
+   apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. dh xa = Some (pair e c)")
+   apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+   prefer 2
+   apply(rule GLIN.some_position_has_details_before_max_dom)
+     apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ea ca cb xa nat)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+  apply(rule_tac
+      t="derivation_append dh (Bra2LinDer G dc (Suc nat)) n xa"
+      and s="Some (pair eb c)"
+      in ssubst)
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+   apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+  apply(simp (no_asm) add: Bra2LinDer_def)
+  apply(subgoal_tac "\<exists>e c. derivation_append (Lin2BraDer dh) dc n xa = Some (pair e c)")
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+   prefer 2
+   apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc)(*strict*)
+  apply(subgoal_tac "\<exists>e c. derivation_append (Lin2BraDer dh) dc n (Suc (n+nat)) = Some (pair e c)")
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc)(*strict*)
+   prefer 2
+   apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc ed "cd")(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc ed "cd")(*strict*)
+   apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc ed "cd")(*strict*)
+  apply(subgoal_tac "Lin2BraConf c = cc")
+   apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc ed "cd")(*strict*)
+   prefer 2
+   apply(simp add: derivation_map_def Lin2BraDer_def derivation_append_def Bra2LinDer_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat eb c ec cc ed "cd")(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(subgoal_tac "ATS.derivation bra_step_relation G (derivation_append (Lin2BraDer dh) dc n)")
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   prefer 2
+   apply(rule GBRA.derivation_concat2)
+      apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+      apply (metis GBRA.derivation_initial_is_derivation)
+     apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(simp add: Lin2BraDer_def derivation_map_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(rule_tac
+      t="Suc (n+nat)"
+      and s="n+(Suc nat)"
+      in ssubst)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n+Suc nat) xa"
+      and s="lin_join_scheduler_fragments (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) n xa) (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n+Suc nat) n)"
+      in ssubst)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(rule Bra2LinDer_prime_split)
+       apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+    apply(rule GBRA.derivation_append_preserves_belongs)
+      apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+     apply (metis GBRA.derivation_initial_belongs)
+    apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) (n + (Suc nat)) n"
+      and s="Bra2LinDer' G dc (Suc nat) 0"
+      in ssubst)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(rule Bra2LinDer_prime_derivation_append_drop)
+    apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+    apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (lin_join_scheduler_fragments (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) n xa) (Bra2LinDer' G dc (Suc nat) 0)) (Bra2LinFin G (bra_get_fixed_scheduler cd))"
+      and s=" lin_extend_scheduler (Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) n xa) (lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cd))) "
+      in ssubst)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_compatible_to_join_scheduler_fragments)
+      apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+     apply(rule Bra2LinDer_prime_closed)
+         apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+       apply(rule GBRA.derivation_append_preserves_belongs)
+         apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+         apply(force)
+        apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+        apply (metis GBRA.derivation_initial_belongs)
+       apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+      apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+     apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+        apply(force)
+       apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GBRA.derivation_append_preserves_belongs GBRA.derivation_initial_belongs)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(simp add: derivation_append_fit_def Bra2LinDer_def)
+  apply(subgoal_tac "Some (pair ea cb) = Some (pair ed cd)")
+   apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+   prefer 2
+   apply(simp add: derivation_append_def)
+  apply(rename_tac dh n dc e ea ca cb xa nat c ec ed "cd")(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(rule sym)
+  apply(rule_tac
+      t="Bra2LinDer' G (derivation_append (Lin2BraDer dh) dc n) n xa"
+      and s="Bra2LinDer' G (Lin2BraDer dh) n xa"
+      in ssubst)
+   apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+   apply(rule Bra2LinDer_prime_derivation_append_drop2)
+         apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+         apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+        apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+        apply (metis GBRA.derivation_initial_is_derivation)
+       apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+       apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+      apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+      apply(force)
+     apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+     apply(force)
+    apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(rule_tac
+      t="lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cd))"
+      and s="lin_get_scheduler ca"
+      in ssubst)
+   apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+   apply(rule_tac
+      t="ca"
+      and s="Bra2LinConf (Lin2BraConf ca) (lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cd)))"
+      in ssubst)
+    apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+   apply(rule sym)
+   apply(subgoal_tac "X" for X)
+    apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+    prefer 2
+    apply(rule_tac
+      s1L="lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cd))"
+      and G="G"
+      and cB="(Lin2BraConf ca)"
+      in AX_Bra2LinConf_schedl_get)
+       apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+      apply(rule AX_Lin2BraConf_preserves_configurations)
+       apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+       apply(force)
+      apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+      apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+     apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+     apply (metis Bra2LinDer_prime_closed AX_Bra2LinFin_closed GBRA.belongs_configurations maximum_of_domain_def GLIN.AX_extend_scheduler_closed le0)
+    apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+    apply(force)
+   apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+   apply(force)
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(thin_tac "derivation_append (Lin2BraDer dh) dc n (Suc (n + nat)) = Some (pair ed cd)")
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(thin_tac "derivation_append (Lin2BraDer dh) dc n xa = Some (pair ec (Lin2BraConf c))")
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(thin_tac "bra_marking_condition G (derivation_append (Lin2BraDer dh) dc n)")
+  apply(thin_tac "ATS.derivation bra_step_relation G dc")
+  apply(thin_tac "ATS.belongs bra_configurations step_labels G dc")
+  apply(thin_tac "maximum_of_domain dc (Suc nat)")
+  apply(thin_tac "dc 0 = Some (pair None (Lin2BraConf ca))")
+  apply(thin_tac "ATS.derivation bra_step_relation G (derivation_append (Lin2BraDer dh) dc n)")
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(thin_tac "dc (Suc nat) = Some (pair ed cd)")
+  apply(thin_tac "ca = Bra2LinConf (Lin2BraConf ca) (lin_extend_scheduler (Bra2LinDer' G dc (Suc nat) 0) (Bra2LinFin G (bra_get_fixed_scheduler cd)))")
+  apply(rename_tac dh n dc e ca xa nat c ec ed "cd")(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e ca xa c ec)(*strict*)
+  apply(thin_tac "ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer dh)")
+  apply(rename_tac dh n e ca xa c ec)(*strict*)
+  apply(thin_tac "maximum_of_domain (Lin2BraDer dh) n")
+  apply(simp add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+  apply(rule sym)
+  apply(rule bfbra_to_bflin_hlp2)
+        apply(rename_tac dh n e ca xa c ec)(*strict*)
+        apply(force)+
+  done
+
+theorem bflin_to_bfbra: "
+  TSstructure G
+  \<Longrightarrow> GLIN.Nonblockingness_linear G
+  \<Longrightarrow> GBRA.Nonblockingness_branching G"
+  apply(simp add: GBRA.Nonblockingness_branching_def GLIN.Nonblockingness_linear_def)
+  apply(clarsimp)
+  apply(rename_tac dh n)(*strict*)
+  apply(erule_tac
+      x="Bra2LinDer G dh n"
+      in allE)
+  apply(erule_tac
+      x="n"
+      in allE)
+  apply(subgoal_tac "\<exists>e c. dh n= Some (pair e c)")
+   apply(rename_tac dh n)(*strict*)
+   prefer 2
+   apply(rule_tac
+      g="dh"
+      in GBRA.pre_notnone_position_is_some_position)
+     apply(rename_tac dh n)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n)(*strict*)
+    apply(simp add: maximum_of_domain_def)
+    apply(force)
+   apply(rename_tac dh n)(*strict*)
+   apply(force)
+  apply(rename_tac dh n)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(subgoal_tac "ATS.derivation_initial lin_initial_configurations lin_step_relation G (Bra2LinDer G dh n)")
+   apply(rename_tac dh n e c)(*strict*)
+   prefer 2
+   apply(simp add: GLIN.derivation_initial_def)
+   apply(rule conjI)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(rule Bra2LinDer_preserves_derivation)
+       apply(rename_tac dh n e c)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+     apply(rename_tac dh n e c)(*strict*)
+     apply(rule GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e c)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(subgoal_tac "\<exists>c. dh 0= Some (pair None c)")
+    apply(rename_tac dh n e c)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_at_0)
+    apply(simp add: GBRA.derivation_initial_def)
+    apply(force)
+   apply(rename_tac dh n e c)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c ca)(*strict*)
+   apply(simp add: Bra2LinDer_def)
+   apply(rule AX_Bra2LinConf_preserves_initiality)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_closed)
+      apply(rename_tac dh n e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(rule Bra2LinDer_prime_closed)
+         apply(rename_tac dh n e c ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c ca)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac dh n e c ca)(*strict*)
+       apply(rule GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e c ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(rule AX_Bra2LinFin_closed)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(rule GBRA.belongs_configurations)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(rule GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e c ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c ca)(*strict*)
+   apply(simp add: GBRA.derivation_initial_def)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(subgoal_tac "maximum_of_domain (Bra2LinDer G dh n) n")
+   apply(rename_tac dh n e c)(*strict*)
+   prefer 2
+   apply(simp add: maximum_of_domain_def Bra2LinDer_def)
+  apply(rename_tac dh n e c)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc dh' x)(*strict*)
+  apply(rule_tac
+      x="Lin2BraDer dc"
+      in exI)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   apply(rule Lin2BraConf_preserves_steps_lift)
+     apply(rename_tac dh n e c dc dh' x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc dh' x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc dh' x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   apply(rule Lin2BraDer_preserves_belongs)
+     apply(rename_tac dh n e c dc dh' x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc dh' x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc dh' x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   apply(rule_tac
+      x="x"
+      in exI)
+   apply(simp add: Lin2BraDer_def)
+   apply(simp add: derivation_map_def)
+   apply(simp add: maximum_of_domain_def)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc dh' x y ya)(*strict*)
+   apply(case_tac ya)
+   apply(rename_tac dh n e c dc dh' x y ya option b)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc dh' x)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc dh' x n')(*strict*)
+  apply(subgoal_tac "n'=x")
+   apply(rename_tac dh n e c dc dh' x n')(*strict*)
+   prefer 2
+   apply(rule GBRA.maximum_of_domainUnique)
+     apply(rename_tac dh n e c dc dh' x n')(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc dh' x n')(*strict*)
+    apply(simp add: Lin2BraDer_def)
+    apply(simp add: derivation_map_def)
+    apply(simp add: maximum_of_domain_def)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc dh' x n' y ya yb)(*strict*)
+    apply(case_tac ya)
+    apply(rename_tac dh n e c dc dh' x n' y ya yb option b)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc dh' x n')(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc dh' x n')(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc dh' x)(*strict*)
+  apply(case_tac "lin_unfixed_scheduler_extendable G (ATS_SchedUF_SB.get_unfixed_scheduler_nth lin_get_unfixed_scheduler (Bra2LinDer G dh n) n)")
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule context_conjI)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(subgoal_tac "\<exists>c. dc 0= Some (pair None c)")
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(rule GLIN.some_position_has_details_at_0)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(subgoal_tac "\<exists>c. (Lin2BraDer dc) 0= Some (pair None c)")
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     prefer 2
+     apply(simp add: Lin2BraDer_def derivation_map_def)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x ca cb)(*strict*)
+    apply(simp add: derivation_append_fit_def)
+    apply(simp add: GLIN.replace_unfixed_scheduler_def get_configuration_def GLIN.get_unfixed_scheduler_nth_def derivation_append_fit_def GLIN.map_unfixed_scheduler_def Lin2BraDer_def derivation_map_def Bra2LinDer_def)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(subgoal_tac "lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))) (lin_get_unfixed_scheduler (Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))))) = Some (lin_empty_scheduler_fragment G)")
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(clarsimp)
+     apply(subgoal_tac "Bra2LinDer' G dh n n = lin_empty_scheduler_fragment G")
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(clarsimp)
+      apply(subgoal_tac "lin_extend_unfixed_scheduler (lin_empty_scheduler_fragment G) (lin_get_unfixed_scheduler ca) = lin_get_unfixed_scheduler ca")
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(clarsimp)
+       apply(subgoal_tac "lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler c)) = Bra2LinFin G (bra_get_fixed_scheduler c)")
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(clarsimp)
+        apply(rule AX_equal_by_fixed_unfixed_and_nonscheduler_part)
+           apply(rename_tac dh n e c dc x ca)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e c dc x ca)(*strict*)
+          apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+           apply(rename_tac dh n e c dc x ca)(*strict*)
+           apply(rule GBRA.derivation_initial_belongs)
+            apply(rename_tac dh n e c dc x ca)(*strict*)
+            apply(force)
+           apply(rename_tac dh n e c dc x ca)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e c dc x ca)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(rule GLIN.belongs_configurations)
+          apply(rename_tac dh n e c dc x ca)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(rule GLIN.AX_extend_scheduler_left_neutral)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(rule AX_Bra2LinFin_closed)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(rule GBRA.derivation_initial_belongs)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule GLIN.AX_extend_unfixed_scheduler_left_neutral)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(rule GLIN.belongs_configurations)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply (metis Bra2LinDer_prime_empty)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(rule GLIN.AX_unfixed_scheduler_right_quotient_all)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(rule GLIN.AX_get_unfixed_scheduler_closed)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+         apply(rename_tac dh n e c dc x ca)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(simp add: GBRA.derivation_initial_def)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(rule GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e c dc x ca)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x ca)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(simp add: GLIN.replace_unfixed_scheduler_def)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(subgoal_tac "maximum_of_domain (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n) (n + x)")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(rule concat_has_max_dom)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(simp add: maximum_of_domain_def)
+     apply(clarsimp)
+     apply(rename_tac dh n e c dc x y ya)(*strict*)
+     apply(rule conjI)
+      apply(rename_tac dh n e c dc x y ya)(*strict*)
+      apply(simp add: GLIN.map_unfixed_scheduler_def)
+      apply(case_tac y)
+      apply(rename_tac dh n e c dc x y ya option b)(*strict*)
+      apply(clarsimp)
+      apply(rename_tac dha dh n e c dc x ya option b)(*strict*)
+      apply(case_tac x)
+      apply(rename_tac dh n e c dc x y ya option b)(*strict*)
+      apply(clarsimp)
+     apply(rename_tac dh n e c dc x y ya)(*strict*)
+     apply(simp add: GLIN.map_unfixed_scheduler_def)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(subgoal_tac "ATS.derivation_initial lin_initial_configurations lin_step_relation G (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n)")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    prefer 2
+    apply(thin_tac "lin_marking_condition G (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n)")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(subgoal_tac "\<exists>c. dh 0= Some (pair None c)")
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(rule GBRA.some_position_has_details_at_0)
+     apply(simp add: GBRA.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(subgoal_tac "\<exists>c. dc 0= Some (pair None c)")
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(rule GLIN.some_position_has_details_at_0)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(subgoal_tac "ATS.derivation_initial lin_initial_configurations lin_step_relation G (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)))")
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(subgoal_tac "ATS.derivation lin_step_relation G (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)))")
+      apply(rename_tac dh n e c dc x)(*strict*)
+      prefer 2
+      apply(simp (no_asm) only: GLIN.derivation_def)
+      apply(rule allI)
+      apply(rename_tac dh n e c dc x i)(*strict*)
+      apply(erule exE)+
+      apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+      apply(rule bflin_to_bfbra_hlp_isDerivation)
+                     apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                     apply(force)
+                    apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                    apply(force)
+                   apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                   apply(force)
+                  apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                  apply(force)
+                 apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                 apply(force)
+                apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+                apply(force)
+               apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+               apply(force)
+              apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+              apply(force)
+             apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+             apply(force)
+            apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+            apply(force)
+           apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x i ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+     apply(clarsimp)
+     apply(rename_tac dh n e c dc x ca cb)(*strict*)
+     apply(thin_tac "ATS.derivation lin_step_relation G (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)))")
+     apply(rename_tac dh n e c dc x ca cb)(*strict*)
+     apply(simp (no_asm) add: GLIN.map_unfixed_scheduler_def)
+     apply(simp (no_asm) add: Bra2LinDer_def)
+     apply(clarsimp)
+     apply(simp (no_asm) add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+     apply(clarsimp)
+     apply(subgoal_tac "c = Lin2BraConf cb")
+      apply(rename_tac dh n e c dc x ca cb)(*strict*)
+      prefer 2
+      apply(simp add: derivation_append_fit_def Lin2BraDer_def derivation_map_def)
+     apply(rename_tac dh n e c dc x ca cb)(*strict*)
+     apply(clarsimp)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(simp (no_asm) add: Bra2LinDer_def)
+     apply(rule_tac
+      t="lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))"
+      in ssubst)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply (metis Bra2LinDer_prime_empty)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule GLIN.AX_extend_scheduler_left_neutral)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule AX_Bra2LinFin_closed)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(clarsimp)
+     apply(rule_tac
+      t="Bra2LinDer' G dh n n"
+      and s="lin_empty_scheduler_fragment G"
+      in ssubst)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply (metis Bra2LinDer_prime_empty)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule_tac
+      t="lin_extend_scheduler (lin_empty_scheduler_fragment G) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb)))"
+      and s="Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))"
+      in ssubst)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule GLIN.AX_extend_scheduler_left_neutral)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule AX_Bra2LinFin_closed)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply (metis GBRA.derivation_initial_belongs)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule_tac
+      t="lin_set_unfixed_scheduler (Bra2LinConf ca (lin_extend_scheduler (Bra2LinDer' G dh n 0) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))))) (lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient (lin_get_unfixed_scheduler (Bra2LinConf ca (lin_extend_scheduler (Bra2LinDer' G dh n 0) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb)))))) (lin_get_unfixed_scheduler (Bra2LinConf (Lin2BraConf cb) (Bra2LinFin G (bra_get_fixed_scheduler (Lin2BraConf cb))))))) (lin_get_unfixed_scheduler cb))"
+      and s="Bra2LinConf ca (lin_extend_scheduler SSsE (lin_get_scheduler SScL))" for SSsE SScL
+      in ssubst)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule AX_lin_unfixed_scheduler_right_quotient_drop_proper)
+             apply(rename_tac dh n e dc x ca cb)(*strict*)
+             prefer 7
+             apply(force)
+            apply(rename_tac dh n e dc x ca cb)(*strict*)
+            prefer 7
+            apply(force)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply (metis GLIN.belongs_configurations)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(rule Bra2LinDer_prime_closed)
+            apply(rename_tac dh n e dc x ca cb)(*strict*)
+            apply(force)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(simp add: GBRA.derivation_initial_def)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply (metis GBRA.derivation_initial_belongs)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(rule Bra2LinConf_closed_wrt_Bra2LinDer_prime)
+            apply(rename_tac dh n e dc x ca cb)(*strict*)
+            apply(force)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(simp add: GBRA.derivation_initial_def)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply (metis GBRA.derivation_initial_belongs)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(clarsimp)
+      apply(subgoal_tac "bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler ca)")
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule_tac
+      d="dh"
+      in GBRA.fixed_scheduler_extendable_translates_backwards_lift)
+            apply(rename_tac dh n e dc x ca cb)(*strict*)
+            apply(force)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(simp add: GBRA.derivation_initial_def)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(rule_tac
+      d="dh"
+      in GBRA.belongs_configurations)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply (metis GBRA.derivation_initial_belongs)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(force)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply(force)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(rule AX_Bra2LinConf_preserves_initiality)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule GLIN.AX_extend_scheduler_closed)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(rule Bra2LinDer_prime_closed)
+           apply(rename_tac dh n e dc x ca cb)(*strict*)
+           apply(force)
+          apply(rename_tac dh n e dc x ca cb)(*strict*)
+          apply(simp add: GBRA.derivation_initial_def)
+         apply(rename_tac dh n e dc x ca cb)(*strict*)
+         apply (metis GBRA.derivation_initial_belongs)
+        apply(rename_tac dh n e dc x ca cb)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply(rule GLIN.AX_get_scheduler_closed)
+       apply(rename_tac dh n e dc x ca cb)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e dc x ca cb)(*strict*)
+      apply (metis GLIN.belongs_configurations)
+     apply(rename_tac dh n e dc x ca cb)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(rule GLIN.derivation_append_preserves_derivation_initial)
+      apply(rename_tac dh n e c dc x)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(rule GLIN.derivation_concat2)
+       apply(rename_tac dh n e c dc x)(*strict*)
+       apply(simp add: GLIN.derivation_initial_def)
+      apply(rename_tac dh n e c dc x)(*strict*)
+      apply(simp add: GLIN.map_unfixed_scheduler_def)
+      apply(simp add: maximum_of_domain_def)
+      apply(clarsimp)
+      apply(rename_tac dh n e c dc x ca cb y ya yb)(*strict*)
+      apply(case_tac y)
+      apply(rename_tac dh n e c dc x ca cb y ya yb option b)(*strict*)
+      apply(clarsimp)
+      apply(rename_tac dha dh n e c dc x ca cb ya yb option b)(*strict*)
+      apply(case_tac cb)
+      apply(rename_tac dha dh n e c dc x ca cb ya yb option b optiona conf)(*strict*)
+      apply(clarsimp)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(simp add: derivation_append_fit_def)
+    apply(clarsimp)
+    apply(rename_tac dh n e c dc x ca cb)(*strict*)
+    apply(case_tac "GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0)) n")
+     apply(rename_tac dh n e c dc x ca cb)(*strict*)
+     apply(clarsimp)
+    apply(rename_tac dh n e c dc x ca cb a)(*strict*)
+    apply(clarsimp)
+    apply(case_tac a)
+    apply(rename_tac dh n e c dc x ca cb a option b)(*strict*)
+    apply(clarsimp)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule_tac
+      t="derivation_append dh (Lin2BraDer dc) n"
+      and s="Lin2BraDer ((derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n))"
+      in ssubst)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    defer
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(rule_tac
+      n="n+x"
+      in AX_Lin2BraDer_preserves_marking_condition)
+       apply(rename_tac dh n e c dc x)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x)(*strict*)
+      prefer 2
+      apply(force)
+     apply(rename_tac dh n e c dc x)(*strict*)
+     prefer 2
+     apply(force)
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc dh' x)(*strict*)
+   prefer 2
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(thin_tac "lin_marking_condition G (derivation_append (GLIN.map_unfixed_scheduler (Bra2LinDer G dh n) (\<lambda>c. lin_extend_unfixed_scheduler (the (lin_unfixed_scheduler_right_quotient c (GLIN.get_unfixed_scheduler_nth (Bra2LinDer G dh n) n))) (GLIN.get_unfixed_scheduler_nth dc 0))) dc n)")
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(rule ext)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(case_tac "xa>n+x")
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(case_tac "dc (xa-n) = None")
+     apply(rename_tac dh n e c dc x xa)(*strict*)
+     apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(rule_tac
+      d="dc"
+      in GLIN.no_some_beyond_maximum_of_domain)
+       apply(rename_tac dh n e c dc x xa)(*strict*)
+       prefer 3
+       apply(force)
+      apply(rename_tac dh n e c dc x xa)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x xa)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(subgoal_tac "n+x\<ge>xa")
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(clarsimp)
+   apply(case_tac "xa>n")
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(subgoal_tac "xa\<le>n")
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(clarsimp)
+   apply(simp (no_asm) add: derivation_append_def Lin2BraDer_def derivation_map_def)
+   apply(clarsimp)
+   apply(simp (no_asm) add: GLIN.map_unfixed_scheduler_def)
+   apply(subgoal_tac "\<exists>e c. dh xa = Some (pair e c)")
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    prefer 2
+    apply(rule GBRA.some_position_has_details_before_max_dom)
+      apply(rename_tac dh n e c dc x xa)(*strict*)
+      apply(simp add: GBRA.derivation_initial_def)
+      apply(force)
+     apply(rename_tac dh n e c dc x xa)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x xa ea ca)(*strict*)
+   apply(case_tac "Bra2LinDer G dh n xa")
+    apply(rename_tac dh n e c dc x xa ea ca)(*strict*)
+    apply(clarsimp)
+    apply(simp add: Bra2LinDer_def)
+   apply(rename_tac dh n e c dc x xa ea ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac dh n e c dc x xa ea ca a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x xa ea ca option b)(*strict*)
+   apply(simp (no_asm) add: GLIN.get_unfixed_scheduler_nth_def get_configuration_def)
+   apply(subgoal_tac "ea = option \<and> Bra2LinConf ca (lin_extend_scheduler (Bra2LinDer' G dh n xa) (Bra2LinFin G (bra_get_fixed_scheduler c))) = b")
+    apply(rename_tac dh n e c dc x xa ea ca option b)(*strict*)
+    prefer 2
+    apply(simp add: Bra2LinDer_def)
+   apply(rename_tac dh n e c dc x xa ea ca option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(rule AX_Lin2BraConf_ignores_set_unfixed_scheduler)
+     apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+        apply(force)
+       apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+       apply(simp add: GBRA.derivation_initial_def)
+      apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+      apply(rule GBRA.derivation_initial_belongs)
+       apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+       apply(force)
+      apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(rule GBRA.belongs_configurations)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x xa ca option)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc dh' x)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(simp add: GLIN.get_unfixed_scheduler_nth_def)
+  apply(simp add: get_configuration_def)
+  apply(subgoal_tac "\<exists>c. dc 0= Some (pair None c)")
+   apply(rename_tac dh n e c dc x)(*strict*)
+   prefer 2
+   apply(rule GLIN.some_position_has_details_at_0)
+   apply(force)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac dh n e c dc x)(*strict*)
+   apply(simp add: derivation_append_fit_def)
+   apply(case_tac "Lin2BraDer dc 0")
+    apply(rename_tac dh n e c dc x)(*strict*)
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+    apply(clarsimp)
+   apply(rename_tac dh n e c dc x a)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x a ca)(*strict*)
+   apply(case_tac a)
+   apply(rename_tac dh n e c dc x a ca option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca option b)(*strict*)
+   apply(subgoal_tac "None = option \<and> Lin2BraConf ca = b \<and> dc 0 = Some (pair None ca)")
+    apply(rename_tac dh n e c dc x ca option b)(*strict*)
+    prefer 2
+    apply(simp add: Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n e c dc x ca option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(case_tac "Bra2LinDer G dh n n")
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    apply(simp add: Bra2LinDer_def)
+   apply(rename_tac dh n e c dc x ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac dh n e c dc x ca a option b)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n e c dc x ca option)(*strict*)
+   apply(subgoal_tac "e = option \<and> Bra2LinConf c (lin_extend_scheduler (Bra2LinDer' G dh n n) (Bra2LinFin G (bra_get_fixed_scheduler c))) = ca")
+    apply(rename_tac dh n e c dc x ca option)(*strict*)
+    prefer 2
+    apply(simp add: Bra2LinDer_def)
+   apply(rename_tac dh n e c dc x ca option)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac dh n c dc x option)(*strict*)
+   apply(rule AX_Lin2BraConf_Bra2LinConf_idemp)
+      apply(rename_tac dh n c dc x option)(*strict*)
+      apply(force)
+     apply(rename_tac dh n c dc x option)(*strict*)
+     apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+    apply(rename_tac dh n c dc x option)(*strict*)
+    apply(rule GLIN.AX_extend_scheduler_closed)
+      apply(rename_tac dh n c dc x option)(*strict*)
+      apply(force)
+     apply(rename_tac dh n c dc x option)(*strict*)
+     apply (metis Bra2LinDer_prime_empty GLIN.AX_empty_scheduler_fragment_in_scheduler_fragments)
+    apply(rename_tac dh n c dc x option)(*strict*)
+    apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+   apply(rename_tac dh n c dc x option)(*strict*)
+   apply (metis Bra2LinDer_prime_empty Bra2LinDer_preserves_configurations GBRA.derivation_initial_belongs GBRA.derivation_initial_is_derivation le_refl)
+  apply(rename_tac dh n e c dc x)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x ca)(*strict*)
+  apply(rule_tac
+      t="derivation_append dh (Lin2BraDer dc) n"
+      and s="Lin2BraDer (derivation_append (Bra2LinDer G dh n) dc n)"
+      in ssubst)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   defer
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply(rule_tac
+      n="n+x"
+      in AX_Lin2BraDer_preserves_marking_condition)
+      apply(rename_tac dh n e c dc x ca)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca)(*strict*)
+     prefer 2
+     apply(force)
+    apply(rename_tac dh n e c dc x ca)(*strict*)
+    prefer 2
+    apply (metis concat_has_max_dom)
+   apply(rename_tac dh n e c dc x ca)(*strict*)
+   apply (metis GLIN.derivation_append_preserves_derivation_initial_prime)
+  apply(rename_tac dh n e c dc x ca)(*strict*)
+  apply(rule ext)
+  apply(rename_tac dh n e c dc x ca xa)(*strict*)
+  apply(case_tac "xa>n+x")
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   apply(case_tac "dc (xa-n) = None")
+    apply(rename_tac dh n e c dc x ca xa)(*strict*)
+    apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   apply(rule_tac
+      m="xa - n"
+      and d="dc"
+      in GLIN.no_some_beyond_maximum_of_domain)
+      apply(rename_tac dh n e c dc x ca xa)(*strict*)
+      apply(force)
+     apply(rename_tac dh n e c dc x ca xa)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca xa)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x ca xa)(*strict*)
+  apply(subgoal_tac "n+x\<ge>xa")
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac dh n e c dc x ca xa)(*strict*)
+  apply(clarsimp)
+  apply(case_tac "xa>n")
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   apply(simp add: derivation_append_def Lin2BraDer_def derivation_map_def)
+  apply(rename_tac dh n e c dc x ca xa)(*strict*)
+  apply(subgoal_tac "xa\<le>n")
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   prefer 2
+   apply(force)
+  apply(rename_tac dh n e c dc x ca xa)(*strict*)
+  apply(clarsimp)
+  apply(simp (no_asm) add: derivation_append_def Lin2BraDer_def derivation_map_def)
+  apply(clarsimp)
+  apply(subgoal_tac "\<exists>e c. dh xa = Some (pair e c)")
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_before_max_dom)
+     apply(rename_tac dh n e c dc x ca xa)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca xa)(*strict*)
+    apply(force)
+   apply(rename_tac dh n e c dc x ca xa)(*strict*)
+   apply(force)
+  apply(rename_tac dh n e c dc x ca xa)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x ca xa ea cb)(*strict*)
+  apply(case_tac "Bra2LinDer G dh n xa")
+   apply(rename_tac dh n e c dc x ca xa ea cb)(*strict*)
+   apply(clarsimp)
+   apply(simp add: Bra2LinDer_def)
+  apply(rename_tac dh n e c dc x ca xa ea cb a)(*strict*)
+  apply(clarsimp)
+  apply(case_tac a)
+  apply(rename_tac dh n e c dc x ca xa ea cb a option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x ca xa ea cb option b)(*strict*)
+  apply(subgoal_tac "ea = option \<and> Bra2LinConf cb (lin_extend_scheduler (Bra2LinDer' G dh n xa) (Bra2LinFin G (bra_get_fixed_scheduler c))) = b")
+   apply(rename_tac dh n e c dc x ca xa ea cb option b)(*strict*)
+   prefer 2
+   apply(simp add: Bra2LinDer_def)
+  apply(rename_tac dh n e c dc x ca xa ea cb option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+  apply(rule AX_Lin2BraConf_Bra2LinConf_idemp)
+     apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+    apply (metis GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+   apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+     apply(force)
+    apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+    apply (metis Bra2LinDer_prime_closed GBRA.derivation_initial_belongs GBRA.derivation_initial_is_derivation maximum_of_domain_def)
+   apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+   apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations GBRA.derivation_initial_belongs)
+  apply(rename_tac dh n e c dc x ca xa cb option)(*strict*)
+  apply (metis GLIN.belongs_configurations GLIN.derivation_initial_belongs)
+  done
+
+lemma AX_Bra2LinConf_preserves_initiality_lift: "
+  TSstructure G
+  \<Longrightarrow> GBRA.derivation_initial G d
+  \<Longrightarrow> d n \<noteq> None
+  \<Longrightarrow> GLIN.derivation_initial G (Bra2LinDer G d n)"
+  apply(subgoal_tac "GBRA.belongs G d")
+   prefer 2
+   apply(rule GBRA.derivation_initial_belongs)
+    apply(force)
+   apply(force)
+  apply(simp add: GLIN.derivation_initial_def GBRA.derivation_initial_def)
+  apply(clarsimp)
+  apply(rename_tac y)(*strict*)
+  apply(subgoal_tac "\<exists>c. d 0 = Some (pair None c)")
+   apply(rename_tac y)(*strict*)
+   prefer 2
+   apply(rule GBRA.some_position_has_details_at_0)
+   apply(force)
+  apply(rename_tac y)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac y c)(*strict*)
+  apply(rule context_conjI)
+   apply(rename_tac y c)(*strict*)
+   apply(rule Bra2LinDer_preserves_derivation)
+      apply(rename_tac y c)(*strict*)
+      apply(force)
+     apply(rename_tac y c)(*strict*)
+     apply(force)
+    apply(rename_tac y c)(*strict*)
+    apply(force)
+   apply(rename_tac y c)(*strict*)
+   apply(force)
+  apply(rename_tac y c)(*strict*)
+  apply(case_tac "Bra2LinDer G d n 0")
+   apply(rename_tac y c)(*strict*)
+   apply(simp add: Bra2LinDer_def derivation_map_def)
+   apply(case_tac y)
+   apply(rename_tac y c option b)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac y c a)(*strict*)
+  apply(clarsimp)
+  apply(case_tac a)
+  apply(rename_tac y c a option b)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac y c option b)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac y c option b)(*strict*)
+   apply(simp add: Bra2LinDer_def)
+   apply(case_tac y)
+   apply(rename_tac y c option b optiona ba)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac c optiona ba)(*strict*)
+   apply(rule AX_Bra2LinConf_preserves_initiality)
+     apply(rename_tac c optiona ba)(*strict*)
+     apply(force)
+    apply(rename_tac c optiona ba)(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac c optiona ba)(*strict*)
+   prefer 2
+   apply(rename_tac y c option b)(*strict*)
+   apply(simp add: Bra2LinDer_def)
+   apply(case_tac y)
+   apply(rename_tac y c option b optiona ba)(*strict*)
+   apply(clarsimp)
+  apply(rename_tac c optiona ba)(*strict*)
+  apply(fold Bra2LinDer_def derivation_map_def)
+  apply(rename_tac c optiona ba)(*strict*)
+  apply(rule GLIN.AX_extend_scheduler_closed)
+    apply(rename_tac c optiona ba)(*strict*)
+    apply(force)
+   apply(rename_tac c optiona ba)(*strict*)
+   apply (metis Bra2LinDer_prime_closed GBRA.derivationNoFromNone GBRA.derivationNoFromNone2_prime le0 less_Suc_eq)
+  apply(rename_tac c optiona ba)(*strict*)
+  apply (metis AX_Bra2LinFin_closed GBRA.belongs_configurations)
+  done
+
+theorem ATS_Branching_Versus_Linear2_unmarked_language_translation1: "
+  TSstructure G
+  \<Longrightarrow> GBRA.finite_unmarked_language G \<subseteq> GLIN.unmarked_language G"
+  apply(simp add: GBRA.finite_unmarked_language_def GLIN.unmarked_language_def)
+  apply(clarsimp)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule_tac
+      x="Bra2LinDer G d n"
+      in exI)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   apply(rule AX_Bra2LinConf_preserves_initiality_lift)
+     apply(rename_tac x d n)(*strict*)
+     apply(force)
+    apply(rename_tac x d n)(*strict*)
+    apply(force)
+   apply(rename_tac x d n)(*strict*)
+   apply(simp add: maximum_of_domain_def)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   prefer 2
+   apply (metis Bra2LinDer_preserves_derivation GBRA.derivation_initial_belongs GBRA.derivation_initial_is_derivation maximum_of_domain_def)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule AX_bra2lin_preserves_unmarked_effect)
+     apply(rename_tac x d n)(*strict*)
+     apply(force)+
+  done
+
+theorem ATS_Branching_Versus_Linear2_unmarked_language_translation2: "
+  TSstructure G
+  \<Longrightarrow> GLIN.finite_unmarked_language G \<subseteq> GBRA.unmarked_language G"
+  apply(simp add: GLIN.finite_unmarked_language_def GBRA.unmarked_language_def)
+  apply(clarsimp)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule_tac
+      x="Lin2BraDer d"
+      in exI)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   apply(rule Lin2BraConf_preserves_initiality_lift)
+    apply(rename_tac x d n)(*strict*)
+    apply(force)
+   apply(rename_tac x d n)(*strict*)
+   apply(force)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   prefer 2
+   apply (metis GBRA.derivation_initial_is_derivation Lin2BraConf_preserves_initiality_lift)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule AX_lin2bra_preserves_unmarked_effect)
+     apply(rename_tac x d n)(*strict*)
+     apply(force)+
+  done
+
+theorem ATS_Branching_Versus_Linear2_marked_language_translation1: "
+  TSstructure G
+  \<Longrightarrow> GBRA.finite_marked_language G \<subseteq> GLIN.marked_language G"
+  apply(simp add: GBRA.finite_marked_language_def GLIN.marked_language_def)
+  apply(clarsimp)
+  apply(rename_tac x d n)(*strict*)
+  apply(subgoal_tac "\<exists>i. i\<le>n \<and> bra_marking_condition G (derivation_take d i) \<and> x \<in> lin_marked_effect G (Bra2LinDer G (derivation_take d i) i)")
+   apply(rename_tac x d n)(*strict*)
+   prefer 2
+   apply(rule AX_bra2lin_preserves_marked_effect)
+       apply(rename_tac x d n)(*strict*)
+       apply(force)+
+  apply(rename_tac x d n)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac x d n i)(*strict*)
+  apply(rule_tac
+      x="Bra2LinDer G (derivation_take d i) i"
+      in exI)
+  apply(clarsimp)
+  apply(rule conjI)
+   apply(rename_tac x d n i)(*strict*)
+   apply(rule AX_Bra2LinConf_preserves_initiality_lift)
+     apply(rename_tac x d n i)(*strict*)
+     apply(force)
+    apply(rename_tac x d n i)(*strict*)
+    apply (metis GBRA.derivation_take_preserves_derivation_initial)
+   apply(rename_tac x d n i)(*strict*)
+   apply(simp add: derivation_take_def)
+   apply(subgoal_tac "\<exists>e c. d i = Some (pair e c)")
+    apply(rename_tac x d n i)(*strict*)
+    apply(force)
+   apply(rename_tac x d n i)(*strict*)
+   apply(rule GBRA.some_position_has_details_before_max_dom)
+     apply(rename_tac x d n i)(*strict*)
+     apply(simp add: GBRA.derivation_initial_def)
+     apply(force)
+    apply(rename_tac x d n i)(*strict*)
+    apply(force)
+   apply(rename_tac x d n i)(*strict*)
+   apply(force)
+  apply(rename_tac x d n i)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac x d n i)(*strict*)
+   apply (metis Bra2LinDer_preserves_derivation derivation_take_conf_end GBRA.derivation_take_preserves_belongs GBRA.derivation_take_preserves_derivation GBRA.derivation_initial_belongs GBRA.derivation_initial_is_derivation GBRA.maximum_of_domainSmaller )
+  apply(rename_tac x d n i)(*strict*)
+  apply(rule AX_Bra2LinDer_preserves_marking_condition)
+     apply(rename_tac x d n i)(*strict*)
+     apply(force)
+    apply(rename_tac x d n i)(*strict*)
+    apply (metis GBRA.derivation_take_preserves_derivation_initial)
+   apply(rename_tac x d n i)(*strict*)
+   apply(force)
+  apply(rename_tac x d n i)(*strict*)
+  apply (metis GBRA.allPreMaxDomSome GBRA.derivation_initial_is_derivation maximum_of_domain_derivation_take)
+  done
+
+theorem ATS_Branching_Versus_Linear2_marked_language_translation2: "
+  TSstructure G
+  \<Longrightarrow> GLIN.finite_marked_language G \<subseteq> GBRA.marked_language G"
+  apply(simp add: GLIN.finite_marked_language_def GBRA.marked_language_def)
+  apply(clarsimp)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule_tac
+      x="Lin2BraDer d"
+      in exI)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   apply(rule Lin2BraConf_preserves_initiality_lift)
+    apply(rename_tac x d n)(*strict*)
+    apply(force)
+   apply(rename_tac x d n)(*strict*)
+   apply(force)
+  apply(rename_tac x d n)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   apply (rule AX_lin2bra_preserves_marked_effect)
+       apply(rename_tac x d n)(*strict*)
+       apply(force)+
+  apply(rename_tac x d n)(*strict*)
+  apply(rule conjI)
+   apply(rename_tac x d n)(*strict*)
+   apply (metis GBRA.derivation_initial_is_derivation Lin2BraConf_preserves_initiality_lift)
+  apply(rename_tac x d n)(*strict*)
+  apply (metis AX_Lin2BraDer_preserves_marking_condition)
+  done
+
+lemma is_forward_edge_deterministicHist_SB_implies_is_forward_edge_deterministic_accessible: "
+  TSstructure G
+  \<Longrightarrow> GBRA.is_forward_edge_deterministicHist_SB G
+  \<Longrightarrow> GLIN.is_forward_edge_deterministic_accessible G"
+  apply(simp add: GLIN.is_forward_edge_deterministic_accessible_def get_configuration_def GBRA.get_accessible_configurations_def)
+  apply(clarsimp)
+  apply(rename_tac c c1 c2 e1 e2)(*strict*)
+  apply(subgoal_tac "ATS_determHIST_SB.compatible_history_fragment_SB history_fragments
+        extend_history join_history_fragments bra_get_history
+        bra_fixed_scheduler_extendable bra_get_fixed_scheduler G
+        (Lin2BraConf c) (Lin2BraConf c1) (Lin2BraConf c2)")
+   apply(rename_tac c c1 c2 e1 e2)(*strict*)
+   prefer 2
+   apply(rule AX_Lin2BraConf_enforces_compatible_history_fragment_SB)
+      apply(rename_tac c c1 c2 e1 e2)(*strict*)
+      apply(force)
+     apply(rename_tac c c1 c2 e1 e2)(*strict*)
+     apply(force)
+    apply(rename_tac c c1 c2 e1 e2)(*strict*)
+    apply(force)
+   apply(rename_tac c c1 c2 e1 e2)(*strict*)
+   apply(force)
+  apply(rename_tac c c1 c2 e1 e2)(*strict*)
+  apply(simp add: GLIN.is_forward_edge_deterministic_accessible_def GBRA.is_forward_edge_deterministicHist_SB_def GLIN.get_accessible_configurations_def get_configuration_def GBRA.get_accessible_configurations_def)
+  apply(clarsimp)
+  apply(rename_tac c c1 c2 e1 e2 d i)(*strict*)
+  apply(case_tac "d i")
+   apply(rename_tac c c1 c2 e1 e2 d i)(*strict*)
+   apply(force)
+  apply(rename_tac c c1 c2 e1 e2 d i a)(*strict*)
+  apply(clarsimp)
+  apply(case_tac a)
+  apply(rename_tac c c1 c2 e1 e2 d i a option conf)(*strict*)
+  apply(rename_tac ei ci)
+  apply(rename_tac c c1 c2 e1 e2 d i a ei ci)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(erule_tac
+      x="the(get_configuration ((Lin2BraDer d) i))"
+      in allE)
+  apply(subgoal_tac "ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer d)")
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   prefer 2
+   apply (metis Lin2BraConf_preserves_initiality_lift)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(erule impE)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(rule_tac
+      x="Lin2BraDer d"
+      in exI)
+   apply(rule conjI)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(force)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(rule_tac
+      x="i"
+      in exI)
+   apply(simp add: get_configuration_def Lin2BraDer_def derivation_map_def)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(subgoal_tac "GLIN.derivation G (derivation_append d (der2 c e1 c1) i)")
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   prefer 2
+   apply(rule GLIN.derivation_append_preserves_derivation)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(rule GLIN.der2_is_derivation)
+    apply(force)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(simp add: der2_def)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(subgoal_tac "GLIN.derivation G (derivation_append d (der2 c e2 c2) i)")
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   prefer 2
+   apply(rule GLIN.derivation_append_preserves_derivation)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(simp add: GLIN.derivation_initial_def)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(rule GLIN.der2_is_derivation)
+    apply(force)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(simp add: der2_def)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(erule_tac
+      x="the(get_configuration ((Lin2BraDer (derivation_append d (der2 c e1 c1) i)) (Suc i)))"
+      in allE)
+  apply(erule_tac
+      x="the(get_configuration ((Lin2BraDer (derivation_append d (der2 c e2 c2) i)) (Suc i)))"
+      in allE)
+  apply(erule_tac
+      x="e1"
+      in allE)
+  apply(erule impE)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(simp add: der2_def get_configuration_def derivation_append_def Lin2BraDer_def derivation_map_def)
+   apply(rule AX_Lin2BraConf_preserves_steps)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(force)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(rule GLIN.belongs_configurations)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(rule GLIN.derivation_initial_belongs)
+      apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+      apply(force)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(force)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(force)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(force)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(erule_tac
+      x="e2"
+      in allE)
+  apply(erule impE)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(simp add: der2_def get_configuration_def derivation_append_def Lin2BraDer_def derivation_map_def)
+   apply(rule AX_Lin2BraConf_preserves_steps)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(force)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(rule GLIN.belongs_configurations)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(rule GLIN.derivation_initial_belongs)
+      apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+      apply(force)
+     apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+     apply(force)
+    apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+    apply(force)
+   apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+   apply(force)
+  apply(rename_tac c c1 c2 e1 e2 d i ei)(*strict*)
+  apply(thin_tac " ATS.derivation_initial bra_initial_configurations bra_step_relation G (Lin2BraDer d)")
+  apply(thin_tac " ATS.derivation lin_step_relation G (derivation_append d (der2 c e1 c1) i)")
+  apply(thin_tac " ATS.derivation lin_step_relation G (derivation_append d (der2 c e2 c2) i)")
+  apply(simp add: der2_def get_configuration_def derivation_append_def Lin2BraDer_def derivation_map_def)
+  done
+
+lemma extend_history_injective: "
+  TSstructure G
+  \<Longrightarrow> h \<in> histories G
+  \<Longrightarrow> hf1 \<in> history_fragments G
+  \<Longrightarrow> hf2 \<in> history_fragments G
+  \<Longrightarrow> extend_history h hf1 = extend_history h hf2
+  \<Longrightarrow> hf1 = hf2"
+  apply (metis GLIN.AX_join_history_fragments_injective)
+  done
+
+lemma is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp1: "
+       TSstructure G \<Longrightarrow>
+       \<forall>c\<in> ATS.get_accessible_configurations lin_initial_configurations
+            lin_step_relation G.
+          \<forall>c1 c2 e1 e2.
+             lin_step_relation G c e1 c1 \<and> lin_step_relation G c e2 c2 \<longrightarrow>
+             e1 = e2 \<Longrightarrow>
+       ATS.derivation_initial bra_initial_configurations bra_step_relation G
+        d \<Longrightarrow>
+       bra_step_relation G c e1 c1 \<Longrightarrow>
+       bra_step_relation G c e2 c2 \<Longrightarrow>
+       d i = Some (pair ei c) \<Longrightarrow>
+       w1 \<in> history_fragments G \<Longrightarrow>
+       w2 \<in> history_fragments G \<Longrightarrow>
+bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1)
+  \<Longrightarrow>
+       bra_get_history c1 = extend_history (bra_get_history c) w1 \<Longrightarrow>
+       bra_get_history c2 = extend_history (bra_get_history c) w2 \<Longrightarrow>
+       GBRA.history_fragment_prefixes G w1
+       \<subseteq> GBRA.history_fragment_prefixes G w2 \<Longrightarrow>
+e1 = e2"
+  apply(simp add: GLIN.get_accessible_configurations_def)
+  apply(erule_tac
+      x="the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))"
+      in allE)
+  apply(subgoal_tac "ATS.derivation bra_step_relation G (derivation_append d (der2 c e2 c2) i)")
+   prefer 2
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "ATS.belongs bra_configurations step_labels G (derivation_append d (der2 c e2 c2) i)")
+   prefer 2
+   apply(rule GBRA.derivation_initial_belongs)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation_initial)
+     apply(force)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "GLIN.derivation G (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i))")
+   prefer 2
+   apply(rule Bra2LinDer_preserves_derivation)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(simp add: derivation_append_def der2_def)
+  apply(subgoal_tac "GLIN.derivation_initial G (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i))")
+   prefer 2
+   apply(rule GLIN.derivation_initialI)
+    apply(force)
+   apply(clarsimp)
+   apply(rename_tac ca)(*strict*)
+   apply(simp add: get_configuration_def)
+   apply(simp add: GBRA.derivation_initial_def)
+   apply(clarsimp)
+   apply(case_tac "d 0")
+    apply(rename_tac ca)(*strict*)
+    apply(force)
+   apply(rename_tac ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac ca a option conf)(*strict*)
+   apply(rename_tac e0 c0)
+   apply(rename_tac ca a e0 c0)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac ca c0)(*strict*)
+   apply(subgoal_tac "\<exists>sL\<in> lin_schedulers G. ca=Bra2LinConf c0 sL")
+    apply(rename_tac ca c0)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(rule AX_Bra2LinConf_preserves_initiality)
+      apply(rename_tac c0 sL)(*strict*)
+      apply(force)
+     apply(rename_tac c0 sL)(*strict*)
+     apply(force)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      x="(lin_extend_scheduler (Bra2LinDer' G (derivation_append d (der2 c e2 c2) i) (Suc i) 0) (Bra2LinFin G (bra_get_fixed_scheduler c2)))"
+      in bexI)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac ca c0)(*strict*)
+        apply(force)
+       apply(rename_tac ca c0)(*strict*)
+       apply(force)
+      apply(rename_tac ca c0)(*strict*)
+      apply(force)
+     apply(rename_tac ca c0)(*strict*)
+     apply(simp add: derivation_append_def der2_def)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GBRA.AX_step_relation_preserves_belongsC)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      d="d"
+      in GBRA.belongs_configurations)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: GBRA.derivation_initial_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(force)
+  apply(subgoal_tac "ATS.derivation bra_step_relation G (derivation_append d (der2 c e1 c1) i)")
+   prefer 2
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "ATS.belongs bra_configurations step_labels G (derivation_append d (der2 c e1 c1) i)")
+   prefer 2
+   apply(rule GBRA.derivation_initial_belongs)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation_initial)
+     apply(force)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "GLIN.derivation G (Bra2LinDer G (derivation_append d (der2 c e1 c1) i) (Suc i))")
+   prefer 2
+   apply(rule Bra2LinDer_preserves_derivation)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(simp add: derivation_append_def der2_def)
+  apply(subgoal_tac "GLIN.derivation_initial G (Bra2LinDer G (derivation_append d (der2 c e1 c1) i) (Suc i))")
+   prefer 2
+   apply(rule GLIN.derivation_initialI)
+    apply(force)
+   apply(clarsimp)
+   apply(rename_tac ca)(*strict*)
+   apply(simp add: get_configuration_def)
+   apply(simp add: GBRA.derivation_initial_def)
+   apply(clarsimp)
+   apply(case_tac "d 0")
+    apply(rename_tac ca)(*strict*)
+    apply(force)
+   apply(rename_tac ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac ca a option conf)(*strict*)
+   apply(rename_tac e0 c0)
+   apply(rename_tac ca a e0 c0)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac ca c0)(*strict*)
+   apply(subgoal_tac "\<exists>sL\<in> lin_schedulers G. ca=Bra2LinConf c0 sL")
+    apply(rename_tac ca c0)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(rule AX_Bra2LinConf_preserves_initiality)
+      apply(rename_tac c0 sL)(*strict*)
+      apply(force)
+     apply(rename_tac c0 sL)(*strict*)
+     apply(force)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      x="(lin_extend_scheduler (Bra2LinDer' G (derivation_append d (der2 c e1 c1) i) (Suc i) 0) (Bra2LinFin G (bra_get_fixed_scheduler c1)))"
+      in bexI)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac ca c0)(*strict*)
+        apply(force)
+       apply(rename_tac ca c0)(*strict*)
+       apply(force)
+      apply(rename_tac ca c0)(*strict*)
+      apply(force)
+     apply(rename_tac ca c0)(*strict*)
+     apply(simp add: derivation_append_def der2_def)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GBRA.AX_step_relation_preserves_belongsC)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      d="d"
+      in GBRA.belongs_configurations)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: GBRA.derivation_initial_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(force)
+  apply(erule impE)
+   apply(rule_tac
+      x="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      in exI)
+   apply(rule conjI)
+    apply(force)
+   apply(rule_tac
+      x="i"
+      in exI)
+   apply(simp add: get_configuration_def)
+   apply(case_tac "Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i")
+    prefer 2
+    apply(rename_tac a)(*strict*)
+    apply(clarsimp)
+    apply(case_tac a)
+    apply(rename_tac a option conf)(*strict*)
+    apply(force)
+   apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+  apply(erule_tac
+      x="(the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) (Suc i))))"
+      in allE)
+  apply(subgoal_tac "w1\<in> {hf' \<in> history_fragments G. \<exists>hf''\<in> history_fragments G. join_history_fragments hf' hf'' = w2}")
+   prefer 2
+   apply(rule_tac
+      A="GBRA.history_fragment_prefixes G w1"
+      in set_mp)
+    apply(simp add: GBRA.history_fragment_prefixes_def)
+   apply(simp add: GBRA.history_fragment_prefixes_def)
+   apply(rule_tac
+      x="empty_history_fragment G"
+      in bexI)
+    apply (metis GLIN.AX_join_history_fragments_empty1)
+   apply (metis GLIN.AX_empty_history_fragment_is_history_fragment)
+  apply(thin_tac "GBRA.history_fragment_prefixes G w1 \<subseteq> GBRA.history_fragment_prefixes G w2")
+  apply(clarsimp)
+  apply(rename_tac hf'')(*strict*)
+  apply(subgoal_tac "X" for X)
+   apply(rename_tac hf'')(*strict*)
+   prefer 2
+   apply(rule_tac
+      c'="c1"
+      in GBRA.AX_steps_extend_history)
+     apply(rename_tac hf'')(*strict*)
+     apply(force)
+    apply(rename_tac hf'')(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac hf'')(*strict*)
+   apply (metis (full_types) GBRA.derivation_initial_configurations)
+  apply(rename_tac hf'')(*strict*)
+  apply(clarsimp)
+  apply(rename_tac hf'' hf)(*strict*)
+  apply(subgoal_tac "\<exists>c1'. lin_step_relation G (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))) e1 c1'")
+   apply(rename_tac hf'' hf)(*strict*)
+   apply(erule_tac exE)+
+   apply(rename_tac hf'' hf c1')(*strict*)
+   apply(erule_tac
+      x="c1'"
+      in allE)
+   apply(erule_tac
+      x="e2"
+      in allE)
+   apply(erule_tac
+      x="e1"
+      in allE)
+   apply(erule impE)
+    apply(rename_tac hf'' hf c1')(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac hf'' hf c1')(*strict*)
+   apply(rule conjI)
+    apply(rename_tac hf'' hf c1')(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac hf'' hf c1')(*strict*)
+   apply(simp add: get_configuration_def)
+   apply(case_tac "Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i")
+    apply(rename_tac hf'' hf c1')(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac hf'' hf c1' a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac "Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) (Suc i)")
+    apply(rename_tac hf'' hf c1' a)(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac hf'' hf c1' a aa)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac hf'' hf c1' a aa option conf)(*strict*)
+   apply(rename_tac exi cxi)
+   apply(rename_tac hf'' hf c1' a aa exi cxi)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac hf'' hf c1' aa exi cxi)(*strict*)
+   apply(case_tac aa)
+   apply(rename_tac hf'' hf c1' aa exi cxi option conf)(*strict*)
+   apply(rename_tac exsi cxsi)
+   apply(rename_tac hf'' hf c1' aa exi cxi exsi cxsi)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac hf'' hf c1' exi cxi exsi cxsi)(*strict*)
+   apply(subgoal_tac "X" for X)
+    apply(rename_tac hf'' hf c1' exi cxi exsi cxsi)(*strict*)
+    prefer 2
+    apply(rule_tac
+      n="i"
+      and m="Suc i"
+      and G="G"
+      and d="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      in GLIN.step_detail_before_some_position)
+      apply(rename_tac hf'' hf c1' exi cxi exsi cxsi)(*strict*)
+      apply(force)
+     apply(rename_tac hf'' hf c1' exi cxi exsi cxsi)(*strict*)
+     apply(force)
+    apply(rename_tac hf'' hf c1' exi cxi exsi cxsi)(*strict*)
+    apply(force)
+   apply(rename_tac hf'' hf c1' exi cxi exsi cxsi)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac hf'' hf c1' exi cxi cxsi e2a)(*strict*)
+   apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+  apply(rename_tac hf'' hf)(*strict*)
+  apply(subgoal_tac "w1=hf")
+   apply(rename_tac hf'' hf)(*strict*)
+   prefer 2
+   apply(rule_tac
+      h="(bra_get_history c)"
+      in extend_history_injective)
+       apply(rename_tac hf'' hf)(*strict*)
+       apply(force)
+      apply(rename_tac hf'' hf)(*strict*)
+      apply(rule GBRA.AX_get_history_closed)
+       apply(rename_tac hf'' hf)(*strict*)
+       apply(force)
+      apply(rename_tac hf'' hf)(*strict*)
+      apply (metis (full_types) GBRA.derivation_initial_configurations)
+     apply(rename_tac hf'' hf)(*strict*)
+     apply(force)
+    apply(rename_tac hf'' hf)(*strict*)
+    apply(force)
+   apply(rename_tac hf'' hf)(*strict*)
+   apply(force)
+  apply(rename_tac hf'' hf)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac hf'')(*strict*)
+  apply(thin_tac "\<forall>c2a e1 e2a. lin_step_relation G (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))) e1 (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) (Suc i)))) \<and> lin_step_relation G (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))) e2a c2a \<longrightarrow> e1 = e2a")
+  apply(case_tac "hf'' \<noteq> empty_history_fragment G")
+   apply(rename_tac hf'')(*strict*)
+   apply(rule_tac
+      dL="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      and d="d"
+      and ?e1.0="e1"
+      and ?e2.0="e2"
+      in AX_Bra2LinDer_allows_slim_step1)
+               apply(rename_tac hf'')(*strict*)
+               prefer 8
+               apply(force)
+              apply(rename_tac hf'')(*strict*)
+              apply(force)
+             apply(rename_tac hf'')(*strict*)
+             apply(force)
+            apply(rename_tac hf'')(*strict*)
+            apply(force)
+           apply(rename_tac hf'')(*strict*)
+           apply(force)
+          apply(rename_tac hf'')(*strict*)
+          apply(force)
+         apply(rename_tac hf'')(*strict*)
+         apply(force)
+        apply(rename_tac hf'')(*strict*)
+        apply(force)
+       apply(rename_tac hf'')(*strict*)
+       apply(force)
+      apply(rename_tac hf'')(*strict*)
+      apply(force)
+     apply(rename_tac hf'')(*strict*)
+     apply(force)
+    apply(rename_tac hf'')(*strict*)
+    apply(force)
+   apply(rename_tac hf'')(*strict*)
+   apply(force)
+  apply(rename_tac hf'')(*strict*)
+  apply(rule_tac
+      dL="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      and d="d"
+      and ?e1.0="e1"
+      and ?e2.0="e2"
+      and ?hf1.0="w1"
+      and ?hf2.0="w1"
+      in AX_Bra2LinDer_allows_slim_step2)
+              apply(rename_tac hf'')(*strict*)
+              prefer 8
+              apply(force)
+             apply(rename_tac hf'')(*strict*)
+             apply(force)
+            apply(rename_tac hf'')(*strict*)
+            apply(force)
+           apply(rename_tac hf'')(*strict*)
+           apply(force)
+          apply(rename_tac hf'')(*strict*)
+          apply(force)
+         apply(rename_tac hf'')(*strict*)
+         apply(force)
+        apply(rename_tac hf'')(*strict*)
+        apply(force)
+       apply(rename_tac hf'')(*strict*)
+       apply(rule_tac t="w1" and s="join_history_fragments w1 hf''" in  ssubst )
+        apply(rename_tac hf'')(*strict*)
+        apply(rule_tac t="hf''" and s="empty_history_fragment G" in ssubst)
+         apply(rename_tac hf'')(*strict*)
+         apply(force)
+        apply(rename_tac hf'')(*strict*)
+        apply(rule sym)
+        apply(rule GBRA.AX_join_history_fragments_empty1)
+         apply(rename_tac hf'')(*strict*)
+         apply(force)
+        apply(rename_tac hf'')(*strict*)
+        apply(force)
+       apply(rename_tac hf'')(*strict*)
+       apply(force)
+      apply(rename_tac hf'')(*strict*)
+      apply(force)
+     apply(rename_tac hf'')(*strict*)
+     apply(force)
+    apply(rename_tac hf'')(*strict*)
+    apply(force)
+   apply(rename_tac hf'')(*strict*)
+   apply(force)
+  apply(rename_tac hf'')(*strict*)
+  apply(force)
+  done
+
+lemma is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp2_1: "
+       TSstructure G \<Longrightarrow>
+       \<forall>c\<in> ATS.get_accessible_configurations lin_initial_configurations
+            lin_step_relation G.
+          \<forall>c1 c2 e1 e2.
+             lin_step_relation G c e1 c1 \<and> lin_step_relation G c e2 c2 \<longrightarrow>
+             e1 = e2 \<Longrightarrow>
+       ATS.derivation_initial bra_initial_configurations bra_step_relation G
+        d \<Longrightarrow>
+       bra_step_relation G c e1 c1 \<Longrightarrow>
+       bra_step_relation G c e2 c2 \<Longrightarrow>
+       d i = Some (pair ei c) \<Longrightarrow>
+       w1 \<in> history_fragments G \<Longrightarrow>
+       w2 \<in> history_fragments G \<Longrightarrow>
+       bra_get_history c1 = extend_history (bra_get_history c) w1 \<Longrightarrow>
+       bra_get_history c2 = extend_history (bra_get_history c) w2 \<Longrightarrow>
+       GBRA.history_fragment_prefixes G w1
+       = GBRA.history_fragment_prefixes G w2 \<Longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c2) \<longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1) \<Longrightarrow>
+e1 = e2"
+  apply(simp add: GLIN.get_accessible_configurations_def)
+  apply(erule_tac
+      x="the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))"
+      in allE)
+  apply(subgoal_tac "ATS.derivation bra_step_relation G (derivation_append d (der2 c e2 c2) i)")
+   prefer 2
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "ATS.belongs bra_configurations step_labels G (derivation_append d (der2 c e2 c2) i)")
+   prefer 2
+   apply(rule GBRA.derivation_initial_belongs)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation_initial)
+     apply(force)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "GLIN.derivation G (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i))")
+   prefer 2
+   apply(rule Bra2LinDer_preserves_derivation)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(simp add: derivation_append_def der2_def)
+  apply(subgoal_tac "GLIN.derivation_initial G (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i))")
+   prefer 2
+   apply(rule GLIN.derivation_initialI)
+    apply(force)
+   apply(clarsimp)
+   apply(rename_tac ca)(*strict*)
+   apply(simp add: get_configuration_def)
+   apply(simp add: GBRA.derivation_initial_def)
+   apply(clarsimp)
+   apply(case_tac "d 0")
+    apply(rename_tac ca)(*strict*)
+    apply(force)
+   apply(rename_tac ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac ca a option conf)(*strict*)
+   apply(rename_tac e0 c0)
+   apply(rename_tac ca a e0 c0)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac ca c0)(*strict*)
+   apply(subgoal_tac "\<exists>sL\<in> lin_schedulers G. ca=Bra2LinConf c0 sL")
+    apply(rename_tac ca c0)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(rule AX_Bra2LinConf_preserves_initiality)
+      apply(rename_tac c0 sL)(*strict*)
+      apply(force)
+     apply(rename_tac c0 sL)(*strict*)
+     apply(force)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      x="(lin_extend_scheduler (Bra2LinDer' G (derivation_append d (der2 c e2 c2) i) (Suc i) 0) (Bra2LinFin G (bra_get_fixed_scheduler c2)))"
+      in bexI)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac ca c0)(*strict*)
+        apply(force)
+       apply(rename_tac ca c0)(*strict*)
+       apply(force)
+      apply(rename_tac ca c0)(*strict*)
+      apply(force)
+     apply(rename_tac ca c0)(*strict*)
+     apply(simp add: derivation_append_def der2_def)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GBRA.AX_step_relation_preserves_belongsC)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      d="d"
+      in GBRA.belongs_configurations)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: GBRA.derivation_initial_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(force)
+  apply(subgoal_tac "ATS.derivation bra_step_relation G (derivation_append d (der2 c e1 c1) i)")
+   prefer 2
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "ATS.belongs bra_configurations step_labels G (derivation_append d (der2 c e1 c1) i)")
+   prefer 2
+   apply(rule GBRA.derivation_initial_belongs)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation_initial)
+     apply(force)
+    apply(force)
+   apply(rule GBRA.derivation_append_preserves_derivation)
+     apply(simp add: GBRA.derivation_initial_def)
+    apply(rule GBRA.der2_is_derivation)
+    apply(force)
+   apply(clarsimp)
+   apply(simp add: der2_def)
+  apply(subgoal_tac "GLIN.derivation G (Bra2LinDer G (derivation_append d (der2 c e1 c1) i) (Suc i))")
+   prefer 2
+   apply(rule Bra2LinDer_preserves_derivation)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(simp add: derivation_append_def der2_def)
+  apply(subgoal_tac "GLIN.derivation_initial G (Bra2LinDer G (derivation_append d (der2 c e1 c1) i) (Suc i))")
+   prefer 2
+   apply(rule GLIN.derivation_initialI)
+    apply(force)
+   apply(clarsimp)
+   apply(rename_tac ca)(*strict*)
+   apply(simp add: get_configuration_def)
+   apply(simp add: GBRA.derivation_initial_def)
+   apply(clarsimp)
+   apply(case_tac "d 0")
+    apply(rename_tac ca)(*strict*)
+    apply(force)
+   apply(rename_tac ca a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac ca a option conf)(*strict*)
+   apply(rename_tac e0 c0)
+   apply(rename_tac ca a e0 c0)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac ca c0)(*strict*)
+   apply(subgoal_tac "\<exists>sL\<in> lin_schedulers G. ca=Bra2LinConf c0 sL")
+    apply(rename_tac ca c0)(*strict*)
+    apply(clarsimp)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(rule AX_Bra2LinConf_preserves_initiality)
+      apply(rename_tac c0 sL)(*strict*)
+      apply(force)
+     apply(rename_tac c0 sL)(*strict*)
+     apply(force)
+    apply(rename_tac c0 sL)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      x="(lin_extend_scheduler (Bra2LinDer' G (derivation_append d (der2 c e1 c1) i) (Suc i) 0) (Bra2LinFin G (bra_get_fixed_scheduler c1)))"
+      in bexI)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GLIN.AX_extend_scheduler_closed)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule Bra2LinDer_prime_closed)
+        apply(rename_tac ca c0)(*strict*)
+        apply(force)
+       apply(rename_tac ca c0)(*strict*)
+       apply(force)
+      apply(rename_tac ca c0)(*strict*)
+      apply(force)
+     apply(rename_tac ca c0)(*strict*)
+     apply(simp add: derivation_append_def der2_def)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule AX_Bra2LinFin_closed)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule GBRA.AX_step_relation_preserves_belongsC)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(force)
+   apply(rename_tac ca c0)(*strict*)
+   apply(rule_tac
+      d="d"
+      in GBRA.belongs_configurations)
+    apply(rename_tac ca c0)(*strict*)
+    apply(rule GBRA.derivation_initial_belongs)
+     apply(rename_tac ca c0)(*strict*)
+     apply(force)
+    apply(rename_tac ca c0)(*strict*)
+    apply(simp add: GBRA.derivation_initial_def)
+   apply(rename_tac ca c0)(*strict*)
+   apply(force)
+  apply(erule_tac P="(\<exists>da. ATS.derivation_initial lin_initial_configurations
+           lin_step_relation G da \<and>
+          (\<exists>ia. get_configuration (da ia) =
+                Some
+                 (the (get_configuration
+                        (Bra2LinDer G (derivation_append d (der2 c e2 c2) i)
+                          (Suc i) i)))))" in impE)
+   apply(rule_tac
+      x="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      in exI)
+   apply(rule conjI)
+    apply(force)
+   apply(rule_tac
+      x="i"
+      in exI)
+   apply(simp add: get_configuration_def)
+   apply(case_tac "Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i")
+    prefer 2
+    apply(rename_tac a)(*strict*)
+    apply(clarsimp)
+    apply(case_tac a)
+    apply(rename_tac a option conf)(*strict*)
+    apply(force)
+   apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+  apply(erule_tac
+      x="(the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) (Suc i))))"
+      in allE)
+  apply(subgoal_tac "X" for X)
+   prefer 2
+   apply(rule_tac
+      c'="c1"
+      in GBRA.AX_steps_extend_history)
+     apply(force)
+    prefer 2
+    apply(force)
+   apply (metis (full_types) GBRA.derivation_initial_configurations)
+  apply(clarsimp)
+  apply(rename_tac hf)(*strict*)
+  apply(subgoal_tac "\<exists>c1'. lin_step_relation G (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))) e1 c1'")
+   apply(rename_tac hf)(*strict*)
+   apply(erule_tac exE)+
+   apply(rename_tac hf c1')(*strict*)
+   apply(erule_tac
+      x="c1'"
+      in allE)
+   apply(erule_tac
+      x="e2"
+      in allE)
+   apply(erule_tac
+      x="e1"
+      in allE)
+   apply(erule_tac Q="e2 = e1" in impE)
+    apply(rename_tac hf c1')(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac hf c1')(*strict*)
+   apply(rule conjI)
+    apply(rename_tac hf c1')(*strict*)
+    prefer 2
+    apply(force)
+   apply(rename_tac hf c1')(*strict*)
+   apply(simp add: get_configuration_def)
+   apply(case_tac "Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i")
+    apply(rename_tac hf c1')(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac hf c1' a)(*strict*)
+   apply(clarsimp)
+   apply(case_tac "Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) (Suc i)")
+    apply(rename_tac hf c1' a)(*strict*)
+    apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+   apply(rename_tac hf c1' a aa)(*strict*)
+   apply(clarsimp)
+   apply(case_tac a)
+   apply(rename_tac hf c1' a aa option conf)(*strict*)
+   apply(rename_tac exi cxi)
+   apply(rename_tac hf c1' a aa exi cxi)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac hf c1' aa exi cxi)(*strict*)
+   apply(case_tac aa)
+   apply(rename_tac hf c1' aa exi cxi option conf)(*strict*)
+   apply(rename_tac exsi cxsi)
+   apply(rename_tac hf c1' aa exi cxi exsi cxsi)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac hf c1' exi cxi exsi cxsi)(*strict*)
+   apply(subgoal_tac "X" for X)
+    apply(rename_tac hf c1' exi cxi exsi cxsi)(*strict*)
+    prefer 2
+    apply(rule_tac
+      n="i"
+      and m="Suc i"
+      and G="G"
+      and d="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      in GLIN.step_detail_before_some_position)
+      apply(rename_tac hf c1' exi cxi exsi cxsi)(*strict*)
+      apply(force)
+     apply(rename_tac hf c1' exi cxi exsi cxsi)(*strict*)
+     apply(force)
+    apply(rename_tac hf c1' exi cxi exsi cxsi)(*strict*)
+    apply(force)
+   apply(rename_tac hf c1' exi cxi exsi cxsi)(*strict*)
+   apply(clarsimp)
+   apply(rename_tac hf c1' exi cxi cxsi e2a)(*strict*)
+   apply(simp add: Bra2LinDer_def derivation_append_def der2_def)
+  apply(rename_tac hf)(*strict*)
+  apply(subgoal_tac "w1=hf")
+   apply(rename_tac hf)(*strict*)
+   prefer 2
+   apply(rule_tac
+      h="(bra_get_history c)"
+      in extend_history_injective)
+       apply(rename_tac hf)(*strict*)
+       apply(force)
+      apply(rename_tac hf)(*strict*)
+      apply(rule GBRA.AX_get_history_closed)
+       apply(rename_tac hf)(*strict*)
+       apply(force)
+      apply(rename_tac hf)(*strict*)
+      apply (metis (full_types) GBRA.derivation_initial_configurations)
+     apply(rename_tac hf)(*strict*)
+     apply(force)
+    apply(rename_tac hf)(*strict*)
+    apply(force)
+   apply(rename_tac hf)(*strict*)
+   apply(force)
+  apply(rename_tac hf)(*strict*)
+  apply(clarsimp)
+  apply(thin_tac "\<forall>c2a e1 e2a. lin_step_relation G (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))) e1 (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) (Suc i)))) \<and> lin_step_relation G (the (get_configuration (Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i) i))) e2a c2a \<longrightarrow> e1 = e2a")
+  apply(rule_tac
+      dL="Bra2LinDer G (derivation_append d (der2 c e2 c2) i) (Suc i)"
+      and d="d"
+      and ?hf1.0="w1"
+      and ?hf2.0="w2"
+      and ?e1.0="e1"
+      and ?e2.0="e2"
+      in AX_Bra2LinDer_allows_slim_step2)
+              prefer 8
+              apply(force)
+             apply(force)
+            apply(force)
+           apply(force)
+          apply(force)
+         apply(force)
+        apply(force)
+       apply(force)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(force)
+  apply(force)
+  done
+
+lemma is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp2: "
+       TSstructure G \<Longrightarrow>
+       \<forall>c\<in> ATS.get_accessible_configurations lin_initial_configurations
+            lin_step_relation G.
+          \<forall>c1 c2 e1 e2.
+             lin_step_relation G c e1 c1 \<and> lin_step_relation G c e2 c2 \<longrightarrow>
+             e1 = e2 \<Longrightarrow>
+       ATS.derivation_initial bra_initial_configurations bra_step_relation G
+        d \<Longrightarrow>
+       bra_step_relation G c e1 c1 \<Longrightarrow>
+       bra_step_relation G c e2 c2 \<Longrightarrow>
+       d i = Some (pair ei c) \<Longrightarrow>
+       w1 \<in> history_fragments G \<Longrightarrow>
+       w2 \<in> history_fragments G \<Longrightarrow>
+       bra_get_history c1 = extend_history (bra_get_history c) w1 \<Longrightarrow>
+       bra_get_history c2 = extend_history (bra_get_history c) w2 \<Longrightarrow>
+       GBRA.history_fragment_prefixes G w1
+       = GBRA.history_fragment_prefixes G w2 \<Longrightarrow>
+e1 = e2"
+  apply(case_tac "bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c2) \<longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1)")
+   apply(rule_tac ?w1.0="w1" and ?w2.0="w2" in is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp2_1)
+              apply(force)
+             apply(force)
+            apply(force)
+           apply(force)
+          apply(force)
+         apply(force)
+        apply(force)
+       apply(force)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(force)
+  apply(rule sym)
+  apply(case_tac "bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c1) \<longrightarrow> bra_fixed_scheduler_extendable G (bra_get_fixed_scheduler c2)")
+   apply(rule_tac ?w1.0="w2" and ?w2.0="w1" in is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp2_1)
+              apply(force)
+             apply(force)
+            apply(force)
+           apply(force)
+          apply(force)
+         apply(force)
+        apply(force)
+       apply(force)
+      apply(force)
+     apply(force)
+    apply(force)
+   apply(force)
+  apply(force)
+  done
+
+lemma Bra_vs_Lin_is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB: "
+  TSstructure G
+  \<Longrightarrow> GLIN.is_forward_edge_deterministic_accessible G
+  \<Longrightarrow> GBRA.is_forward_edge_deterministicHist_SB G"
+  apply(simp add: GLIN.is_forward_edge_deterministic_accessible_def GBRA.is_forward_edge_deterministicHist_SB_def GBRA.get_accessible_configurations_def get_configuration_def)
+  apply(clarsimp)
+  apply(rename_tac c d c1 c2 e1 i e2)(*strict*)
+  apply(case_tac "d i")
+   apply(rename_tac c d c1 c2 e1 i e2)(*strict*)
+   apply(force)
+  apply(rename_tac c d c1 c2 e1 i e2 a)(*strict*)
+  apply(clarsimp)
+  apply(case_tac a)
+  apply(rename_tac c d c1 c2 e1 i e2 a option conf)(*strict*)
+  apply(rename_tac ei ci)
+  apply(rename_tac c d c1 c2 e1 i e2 a ei ci)(*strict*)
+  apply(clarsimp)
+  apply(rename_tac c d c1 c2 e1 i e2 ei)(*strict*)
+  apply(simp add: GBRA.compatible_history_fragment_SB_def Let_def)
+  apply(clarsimp)
+  apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+  apply(erule disjE)
+   apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+   apply(clarsimp)
+   apply(rule_tac
+      ?w1.0="w1"
+      and ?w2.0="w2"
+      and G="G"
+      and d="d"
+      in is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp1)
+              apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+              apply(force)
+             apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+             apply(force)
+            apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+            apply(force)
+           apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+           apply(force)
+          apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+          apply(force)
+         apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+         apply(force)
+        apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+        apply(force)
+       apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+       apply(force)
+      apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+      apply(force)
+     apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+     apply(force)
+    apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+    apply(force)
+   apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+   apply(force)
+  apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+  apply(erule disjE)
+   apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+   apply(clarsimp)
+   apply(rule sym)
+   apply(rule_tac
+      ?e1.0="e2"
+      and ?e2.0="e1"
+      and ?c1.0="c2"
+      and ?c2.0="c1"
+      and ?w1.0="w2"
+      and ?w2.0="w1"
+      and G="G"
+      and d="d"
+      in is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp1)
+              apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+              apply(force)
+             apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+             apply(force)
+            apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+            apply(force)
+           apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+           apply(force)
+          apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+          apply(force)
+         apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+         apply(force)
+        apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+        apply(force)
+       apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+       apply(force)
+      apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+      apply(force)
+     apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+     apply(force)
+    apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+    apply(force)
+   apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+   apply(force)
+  apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+  apply(rule_tac
+      ?w1.0="w1"
+      and ?w2.0="w2"
+      and G="G"
+      and d="d"
+      in is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB_hlp2)
+            apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+            apply(force)
+           apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+           apply(force)
+          apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+          apply(force)
+         apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+         apply(force)
+        apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+        apply(force)
+       apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+       apply(force)
+      apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+      apply(force)
+     apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+     apply(force)
+    apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+    apply(force)
+   apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+   apply(force)
+  apply(rename_tac c d c1 c2 e1 i e2 ei w1 w2)(*strict*)
+  apply(force)
+  done
+
+theorem is_forward_edge_deterministic_accessible_vs_is_forward_edge_deterministicHist_SB: "
+  TSstructure G
+  \<Longrightarrow> GLIN.is_forward_edge_deterministic_accessible G = GBRA.is_forward_edge_deterministicHist_SB G"
+  apply(rule antisym)
+   apply(clarsimp)
+   apply(rule Bra_vs_Lin_is_forward_edge_deterministic_accessible_implies_is_forward_edge_deterministicHist_SB)
+    apply(force)
+   apply(force)
+  apply(clarsimp)
+  apply(rule is_forward_edge_deterministicHist_SB_implies_is_forward_edge_deterministic_accessible)
+   apply(force)
+  apply(force)
+  done
+
+end
+
+end

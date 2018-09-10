@@ -1,0 +1,10 @@
+theory  PRJ_04__EXIT
+imports
+  control_theory_on_discrete_event_systems
+  control_theory_on_languages
+  control_theory_on_languages__alternative_characterization_of_controllable_language
+  control_theory_on_languages__characterization_of_controllable_sublanguage
+  PRJ_04__ENTRY
+begin
+(*automatically created; do not modify*)
+end

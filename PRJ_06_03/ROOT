@@ -1,0 +1,5 @@
+session "PRJ_06_03" = "PRJ_06_02" +
+  options [document = pdf, document_output = "output", document_variants="document:outline=/proof,/ML"]
+  theories
+    PRJ_06_03__EXIT
+  document_files "root.tex"

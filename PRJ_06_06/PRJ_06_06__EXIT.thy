@@ -1,0 +1,28 @@
+theory  PRJ_06_06__EXIT
+imports
+  L_ATS_Bisimulation_Configuration_Weak
+  L_ATS_Bisimulation_Derivation_Strong1
+  L_ATS_Bisimulation_Derivation_Strong2
+  L_ATS_Branching
+  L_ATS_Branching_Versus_Linear1
+  L_ATS_Branching_Versus_Linear2
+  L_ATS_Derivation_Map
+  L_ATS_Isomorphism
+  L_ATS_Linear
+  L_ATS_Simulation_Configuration_Weak
+  L_ATS_Simulation_Configuration_Weak_Plain
+  L_ATS_Simulation_Configuration_WeakBRA
+  L_ATS_Simulation_Configuration_WeakDET
+  L_ATS_Simulation_Configuration_WeakLR_FULL
+  L_ATS_Simulation_Configuration_WeakLR_Marked_Effect
+  L_ATS_Simulation_Configuration_WeakLR_Marking_Condition
+  L_ATS_Simulation_Configuration_WeakLR_Unmarked_Effect
+  L_ATS_Simulation_Configuration_WeakLRB
+  L_ATS_Simulation_Configuration_WeakLRReach
+  L_ATS_Simulation_Configuration_WeakLRRequired
+  PRJ_06_06__ENTRY
+  PRJ_06_06__POST
+  PRJ_06_06__PRE
+begin
+(*automatically created; do not modify*)
+end
